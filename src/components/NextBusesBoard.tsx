@@ -201,7 +201,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   <button
                     type="button"
                     onClick={() => onSelectBusToBook(bus)}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/10 transition-all cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold shadow-md shadow-amber-500/10 transition-colors cursor-pointer"
                   >
                     <span>Select Seat</span>
                     <ArrowRight className="w-3.5 h-3.5" />

@@ -59,7 +59,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         </div>
 
         {/* Printable Ticket Slip */}
-        <div id="printable-ticket" className="p-6 sm:p-8 space-y-6 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div id="printable-ticket" className="p-6 sm:p-8 space-y-6 bg-slate-900">
           
           {/* Ticket Header Brand */}
           <div className="flex items-start justify-between border-b border-slate-800 pb-5">

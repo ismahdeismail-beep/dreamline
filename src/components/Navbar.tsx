@@ -36,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-slate-950 text-white border-b border-slate-800/80 backdrop-blur-md bg-opacity-95 shadow-lg">
       {/* Top micro-bar */}
-      <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-slate-950 text-xs py-1.5 px-4 font-medium">
+      <div className="bg-amber-500 text-slate-950 text-xs py-1.5 px-4 font-medium">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 font-semibold tracking-wide">
@@ -72,7 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleNavClick('hero')} 
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-xl bg-amber-400 flex items-center justify-center text-slate-950 shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
               <Bus className="w-6 h-6 stroke-[2.2]" />
             </div>
             <div>

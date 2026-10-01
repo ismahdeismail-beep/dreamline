@@ -181,7 +181,7 @@ export const RoutesDirectory: React.FC<RoutesDirectoryProps> = ({
         </div>
 
         {/* Can't find your town? Banner */}
-        <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl border border-slate-700/80 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-6 bg-slate-900 rounded-2xl border border-slate-700/80 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <h4 className="text-base font-bold text-white font-['Outfit']">
               Travelling to Narok, Oyugis, Keroka, Kendu Bay, Yala, or Butere?

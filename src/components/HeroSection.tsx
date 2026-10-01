@@ -72,20 +72,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section className="relative bg-slate-950 text-white pt-10 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Hero background image with dark overlay for readability */}
-      <div className="absolute inset-0 bg-[url('/images/hero-1.jpg')] no-repeat center/cover opacity-40" />
+      <div className="absolute inset-0 bg-[url('/images/hero-1.jpg')] bg-cover bg-center bg-no-repeat opacity-40" />
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/60 to-slate-950" />
 
       <div className="relative max-w-7xl mx-auto">
 
         {/* Headline */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold tracking-widest uppercase text-amber-400">
+          <div className="flex items-center justify-center gap-2 text-sm font-medium text-amber-300">
             <span>Kenya's Premier Luxury Coach Operator</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-['Outfit'] text-white text-balance leading-tight">
-            Book tickets effortlessly online.{' '}
-            <span className="text-amber-400">Affordable Rates.</span>
+            Book tickets effortlessly online. Affordable rates.
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
