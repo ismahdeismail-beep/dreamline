@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, Ticket, Menu, X } from 'lucide-react';
-import { DISPLAY_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
+import { DISPLAY_WHATSAPP_NUMBER } from '../data/dreamlineData';
 
 interface NavbarProps {
   onOpenManageTicket: () => void;
@@ -15,11 +15,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const directWhatsAppLink = buildWhatsAppLink(
-    DEFAULT_WHATSAPP_NUMBER,
-    'Habari Dreamline! I would like to make an inquiry about bus tickets.'
-  );
-
   const handleNavClick = (sectionId: string) => {
     setMobileMenuOpen(false);
     onNavigateSection(sectionId);
@@ -31,15 +26,10 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-[#34398e] text-white text-xs py-1.5 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           <span className="font-semibold tracking-wide">Daily departures across Kenya</span>
-          <a
-            href={directWhatsAppLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 bg-white/15 px-2.5 py-0.5 rounded-full hover:bg-white/25 transition-colors font-semibold"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
             WhatsApp Desk Active
-          </a>
+          </span>
         </div>
       </div>
 
@@ -83,13 +73,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
-            <button
-              onClick={() => onOpenWhatsAppHub()}
-              className="p-2 text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-lg"
-              aria-label="WhatsApp Desk"
-            >
-              <MessageSquare className="w-5 h-5" />
-            </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-slate-700 rounded-lg"

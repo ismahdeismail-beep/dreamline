@@ -52,12 +52,6 @@ export const FleetAndSafety: React.FC<FleetAndSafetyProps> = ({ onOpenWhatsAppHu
                   ))}
                 </div>
               </div>
-              <button
-                onClick={() => onOpenWhatsAppHub(`Habari! Availability for ${c.name}?`)}
-                className="mt-5 w-full py-2.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-600 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <MessageSquare className="w-3.5 h-3.5" /> Ask on WhatsApp
-              </button>
             </div>
           ))}
         </div>

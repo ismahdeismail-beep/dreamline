@@ -56,7 +56,7 @@ export const Footer: React.FC<FooterProps> = ({
             <li>River Road Terminal, Nairobi</li>
             <li>+254 712 345 678</li>
             <li><a href="mailto:info@dreamline.co.ke" className="hover:text-white">info@dreamline.co.ke</a></li>
-            <li><button onClick={() => onOpenWhatsAppHub()} className="text-emerald-400 font-bold hover:underline">WhatsApp desk</button></li>
+            <li><a href="tel:+254712345678" className="hover:text-white">Call our desk</a></li>
           </ul>
         </div>
       </div>

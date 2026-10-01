@@ -58,7 +58,10 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
   const isVipCoach = bus.coachType.includes('VIP');
   const seatPrice = isVipCoach ? bus.vipPrice : bus.regularPrice;
-  const totalAmount = selectedSeats.length * seatPrice;
+  // Seat choice is optional: with none selected we quote one seat and the desk
+  // assigns it on confirmation, so nobody is blocked from booking.
+  const billableSeats = Math.max(selectedSeats.length, 1);
+  const totalAmount = billableSeats * seatPrice;
 
   // Generate seat rows (e.g. 10 rows)
   const rows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -79,22 +82,17 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   };
 
   const validateInputs = () => {
-    if (selectedSeats.length === 0) {
-      setErrorMsg('Please select at least one seat on the coach map.');
-      return false;
-    }
+    // Only the two fields the desk genuinely needs are mandatory. Everything
+    // else (seat choice, ID, email) is optional so the form works for everyone.
     if (!passengerName.trim()) {
-      setErrorMsg('Please enter primary passenger full name.');
+      setErrorMsg('Please enter your full name.');
       return false;
     }
-    if (!passengerPhone.trim() || passengerPhone.length < 9) {
-      setErrorMsg('Please enter a valid Safaricom phone number for M-Pesa.');
+    if (!passengerPhone.trim() || passengerPhone.replace(/\s/g, '').length < 9) {
+      setErrorMsg('Please enter a valid phone number, e.g. 0712 345 678.');
       return false;
     }
-    if (!idNumber.trim()) {
-      setErrorMsg('National ID or Passport number is required by NTSA regulations.');
-      return false;
-    }
+    setErrorMsg('');
     return true;
   };
 
@@ -114,13 +112,9 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   };
 
   const handleWhatsAppBookingDesk = () => {
-    if (selectedSeats.length === 0) {
-      setErrorMsg('Please pick your desired seat(s) first.');
-      return;
-    }
-    const nameStr = passengerName || 'Customer';
-    const phoneStr = passengerPhone || 'Pending';
-    const msg = `Habari Dreamline! I would like to reserve ${selectedSeats.length} seat(s) [${selectedSeats.join(', ')}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Passenger: ${nameStr} (Phone: ${phoneStr}). Total: KSh ${totalAmount.toLocaleString()}. Please reserve and advise payment.`;
+    if (!validateInputs()) return;
+    const seatStr = selectedSeats.length ? selectedSeats.join(', ') : 'any available seat';
+    const msg = `Habari Dreamline! I would like to reserve ${billableSeats} seat(s) [${seatStr}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Passenger: ${passengerName} (Phone: ${passengerPhone}). Total: KSh ${totalAmount.toLocaleString()}. Please reserve and advise payment.`;
     const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
     window.open(link, '_blank', 'noopener,noreferrer');
   };
@@ -340,7 +334,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
                     <User className="w-3.5 h-3.5 text-amber-400" />
-                    Primary Passenger Name (as on ID)
+                    Full name
                   </label>
                   <input
                     type="text"
@@ -355,7 +349,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                      M-Pesa Safaricom Phone
+                      Phone number
                     </label>
                     <input
                       type="tel"
@@ -369,7 +363,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
                       <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                      National ID / Passport No.
+                      National ID / Passport <span className="text-slate-500 font-normal">(optional)</span>
                     </label>
                     <input
                       type="text"
@@ -383,7 +377,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-slate-300">
-                    Email Address (for e-ticket receipt)
+                    Email <span className="text-slate-500 font-normal">(optional)</span>
                   </label>
                   <input
                     type="email"
@@ -398,7 +392,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               {/* Price Calculation Box */}
               <div className="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>Fare ({selectedSeats.length} seat(s) × KSh {seatPrice.toLocaleString()})</span>
+                  <span>Fare ({billableSeats} seat(s) × KSh {seatPrice.toLocaleString()})</span>
                   <span className="font-mono">KSh {totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-400">
@@ -423,25 +417,24 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
             {/* DUAL CHECKOUT OPTIONS */}
             <div className="pt-4 space-y-2.5">
-              {/* Primary: Instant M-Pesa STK push */}
-              <button
-                type="button"
-                onClick={handleMpesaClick}
-                disabled={selectedSeats.length === 0}
-                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>Pay KSh {totalAmount.toLocaleString()} via M-PESA STK Push</span>
-              </button>
-
-              {/* Secondary: WhatsApp Hold & Reservation */}
+              {/* Primary: reserve on WhatsApp — the desk confirms and takes payment */}
               <button
                 type="button"
                 onClick={handleWhatsAppBookingDesk}
+                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Reserve {billableSeats} seat — send to WhatsApp</span>
+              </button>
+
+              {/* Secondary: M-Pesa STK push */}
+              <button
+                type="button"
+                onClick={handleMpesaClick}
                 className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
-                <span>Reserve Seats & Forward to WhatsApp Desk</span>
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>Or pay KSh {totalAmount.toLocaleString()} via M-PESA</span>
               </button>
             </div>
 

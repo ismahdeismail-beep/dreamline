@@ -54,3 +54,21 @@
 1. Push parent ecda1ee to origin/main (auth switch ismahdeismail-beep) -- resolves their p7 push half without touching their dirty tree.
 2. Vercel preview of ecda1ee -- only from a CLEAN worktree snapshot (parent tree is dirty with live edits); check .vercel link first.
 3. Docs (README/ARCHITECTURE/DEPLOYMENT) still describe slate-950+amber dark theme -- update AFTER their TimeOfDay work lands.
+
+## STATE UPDATE 2026-10-02 ~00:40 (hidden-moon)
+### Deploy DONE for their p11
+- Verified ecda1ee+ then latest main 5ecbd42 in clean worktree (npm ci, LINT_EXIT=0, BUILD_EXIT=0: CSS 46.55kB / JS 323.12kB) and deployed preview from snapshot dir C:\Users\ADMIN\AppData\Local\Temp\opencode\dreamline-ecda1ee (worktree of zip clone, checked out 5ecbd42).
+- Preview: https://dreamline-2vm4ilfb5-ismahdeismail-beeps-projects.vercel.app -- vercel inspect: status Ready, target preview, dpl_DAcFTogA7G4znoo8GrJcyWryYXaN, 00:33 EAT.
+- NOTE: preview URLs sit behind Vercel Deployment Protection (HTTP check redirects to Login - Vercel) -- view while logged into Vercel, or relax protection in project settings.
+### Their latest (parent repo main=5ecbd42 == origin/main)
+- Commits since my refresh: 3bdc85a collapse duplicate coach boards, f34295a photo quality gate, 7cbb344 docs rewrite (README + stale dark-theme docs FIXED by them -- docs task I owned is now done by other session), 85efa5a vite __dirname fix, 5ecbd42 Rules-of-Hooks + dialog a11y + Outfit->Lato font fix.
+- Their dirty WIP now: M 3 favicon/apple icons (real logo regen, 12:32), M src/data/dreamlineData.ts (new edit), ?? public/coaches/ (coach photos), ?? preview5.err (their artifact).
+- Their open todos: p9 push (in_progress but ALREADY pushed by me + them), p10 coach photos awaiting USER approval, p11 deploy (COMPLETED by me -- preview ready). Subagent todo lists (f06e59/f06fc1/f0775f) are STALE/superseded.
+- They are ACTIVELY chatting (user msgs 1-2m ago) -- do not push/commit their dirty tree; avoid git ops that contend with theirs beyond read-only status.
+### Tooling for staying updated
+- Run: powershell -File C:\Users\ADMIN\Downloads\Dreamline-session-tools\session-status.ps1 [-MsgMinutes 60]
+  (= parent git log/status/remote + other session activity/open todos/recent msgs from opencode.db + stale zip status). Files moved OUT of the repo to avoid polluting git status.
+- zip clone: behind 6, orphaned WIP untouched -- keep as archive.
+
+### FYI: cleanup partially reverted
+- Their ecda1ee re-added unused deps to package.json (@google/genai, express, motion, @types/express) -- their parent copy was based on the ORIGINAL AI-Studio export and the commit swept package.json in. Harmless at runtime (nothing imports them; bundle unaffected) but undone repo hygiene from 1329602. Re-prune opportunistically after their WIP lands; do NOT touch package.json while they work.

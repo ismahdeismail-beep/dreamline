@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { MapPin, Calendar, Users, ArrowRightLeft, Search, MessageSquare } from 'lucide-react';
-import { KENYAN_CITIES, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
+import { MapPin, Calendar, Users, ArrowRightLeft, Search } from 'lucide-react';
+import { KENYAN_CITIES } from '../data/dreamlineData';
 
 interface HeroSectionProps {
   onSearch: (params: { origin: string; destination: string; date: string; passengers: number }) => void;
-  onOpenWhatsAppHub: (message?: string) => void;
   onSelectRouteQuick: (from: string, to: string) => void;
 }
 
@@ -17,7 +16,6 @@ const BENEFITS = [
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
-  onOpenWhatsAppHub,
   onSelectRouteQuick
 }) => {
   const [origin, setOrigin] = useState('Nairobi');
@@ -33,11 +31,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({ origin, destination, date: travelDate, passengers });
-  };
-
-  const handleWhatsAppRouteEnquiry = () => {
-    const msg = `Habari Dreamline! Bus from ${origin} to ${destination} on ${travelDate} for ${passengers} passenger(s). Times and fare?`;
-    window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg), '_blank', 'noopener,noreferrer');
   };
 
   const topCorridors = [
@@ -125,18 +118,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row gap-3">
-              <button
-                type="button"
-                onClick={handleWhatsAppRouteEnquiry}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 font-bold text-sm border-2 border-emerald-600 transition-colors cursor-pointer"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Check on WhatsApp</span>
-              </button>
+            <div className="pt-2">
               <button
                 type="submit"
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-[#e52421] hover:bg-[#c11e1c] text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-[#e52421] hover:bg-[#c11e1c] text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
               >
                 <Search className="w-4 h-4" />
                 <span>Search Buses</span>
@@ -169,13 +154,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
           ))}
         </div>
-
-        <p className="mt-5 text-center text-xs text-slate-500">
-          Prefer chat?{' '}
-          <button onClick={() => onOpenWhatsAppHub()} className="text-emerald-700 font-bold hover:underline cursor-pointer">
-            Talk to us on WhatsApp
-          </button>
-        </p>
       </div>
     </section>
   );

@@ -159,7 +159,6 @@ export default function App() {
         <div id="hero">
           <HeroSection
             onSearch={handleHeroSearch}
-            onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
             onSelectRouteQuick={handleQuickRouteSelect}
           />
         </div>
@@ -185,7 +184,6 @@ export default function App() {
         {/* 4. ALL ROUTES & FARES DIRECTORY */}
         <RoutesDirectory
           onSelectRoute={handleQuickRouteSelect}
-          onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
         />
 
         {/* 5. VIP FLEET & SAFETY FIRST PROTOCOL */}

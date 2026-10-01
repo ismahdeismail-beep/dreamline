@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import { MessageSquare, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import {
   BusSchedule,
-  DEFAULT_WHATSAPP_NUMBER,
-  buildWhatsAppLink,
   coachImageFor,
   getTimeOfDayCategory,
   TimeOfDay,
@@ -54,11 +52,6 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
     setTimeBucket('All');
   };
 
-  const handleWhatsAppInquiry = (bus: BusSchedule) => {
-    const msg = `Habari Dreamline! Seats for the ${bus.departureTime} ${bus.origin} → ${bus.destination} (${bus.coachName})?`;
-    window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg), '_blank', 'noopener,noreferrer');
-  };
-
   const heading = searchSummary
     ? `${searchSummary.origin} → ${searchSummary.destination}`
     : 'Next buses';
@@ -75,13 +68,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-1">{heading}</h2>
             <p className="text-sm text-slate-500">{subheading}</p>
           </div>
-          <button
-            onClick={() => onOpenWhatsAppHub('Habari! Next departures from my city?')}
-            className="text-xs font-bold text-emerald-700 hover:underline cursor-pointer self-start"
-          >
-            Ask on WhatsApp →
-          </button>
-        </div>
+          </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -141,13 +128,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               >
                 Clear filters
               </button>
-              <button
-                onClick={() => onOpenWhatsAppHub('Habari! Do you have seats on this route?')}
-                className="px-4 py-2 rounded-xl bg-white border border-emerald-600 text-emerald-700 text-xs font-bold cursor-pointer"
-              >
-                Ask on WhatsApp
-              </button>
-            </div>
+              </div>
           </div>
         ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -159,7 +140,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   coachType={bus.coachType}
                   src={bus.coachImage ?? coachImageFor(bus.coachType)}
                   alt={`${bus.coachName} — ${bus.coachType}`}
-                  className="aspect-[16/9] w-full border-b border-slate-200"
+                  className="h-24 sm:h-28 w-full border-b border-slate-200"
                 />
                 <div className="p-5">
                 <div>
@@ -196,19 +177,11 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-200">
-                  <button
-                    type="button"
-                    onClick={() => handleWhatsAppInquiry(bus)}
-                    className="py-2.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-600 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    WhatsApp
-                  </button>
+                <div className="mt-3 pt-3 border-t border-slate-200">
                   <button
                     type="button"
                     onClick={() => onSelectBusToBook(bus)}
-                    className="py-2.5 rounded-xl bg-[#e52421] hover:bg-[#c11e1c] text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
+                    className="w-full py-2.5 rounded-xl bg-[#e52421] hover:bg-[#c11e1c] text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
                   >
                     Select Seat <ArrowRight className="w-3.5 h-3.5" />
                   </button>
