@@ -156,7 +156,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
                   <MessageSquare className="w-5 h-5 fill-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base tracking-tight font-['Outfit'] flex items-center gap-1.5">
+                  <h3 className="font-bold text-base tracking-tight font-['Lato'] flex items-center gap-1.5">
                     Dreamline WhatsApp Desk
                     <span className="text-[10px] font-semibold bg-emerald-700/80 text-emerald-200 px-2 py-0.5 rounded-full">
                       Official

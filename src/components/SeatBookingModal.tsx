@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useModalA11y } from '../hooks/useModalA11y';
 import {
   X,
   Bus,
@@ -17,7 +18,10 @@ import {
 } from '../data/dreamlineData';
 
 interface SeatBookingModalProps {
-  bus: BusSchedule | null;
+  // Non-nullable: App renders this component only when a bus is selected.
+  // Typing it as nullable previously forced a `if (!bus) return null` guard that
+  // sat before the hooks and made the hook count change between renders.
+  bus: BusSchedule;
   onClose: () => void;
   onProceedToMpesa: (bookingData: {
     bus: BusSchedule;
@@ -37,8 +41,6 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   onClose,
   onProceedToMpesa
 }) => {
-  if (!bus) return null;
-
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
@@ -47,6 +49,9 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   const [pickupPoint, setPickupPoint] = useState(bus.pickupPoints[0] || 'Main Terminal');
   const [dropoffPoint, setDropoffPoint] = useState(bus.dropoffPoints[0] || 'Main Stage');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // This modal is mounted only while a bus is selected, so it is always "open".
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   // Fixed simulated booked seats for realistic realism
   const bookedSeatNumbers = new Set(['1B', '2A', '4A', '4B', '6C', '7A', '8B', '9C']);
@@ -122,7 +127,14 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-4xl w-full text-slate-900 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="seat-booking-title"
+        tabIndex={-1}
+        className="bg-white border border-slate-200 rounded-3xl max-w-4xl w-full text-slate-900 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col"
+      >
 
         {/* Modal Top Header */}
         <div className="p-5 sm:px-7 bg-[#f9f8fc] border-b border-slate-200 flex items-center justify-between">
@@ -132,7 +144,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                <h3 id="seat-booking-title" className="text-base sm:text-lg font-bold text-slate-900">
                   {bus.coachName}
                 </h3>
                 <span className="text-xs font-bold bg-[#34398e]/10 text-[#34398e] px-2 py-0.5 rounded">

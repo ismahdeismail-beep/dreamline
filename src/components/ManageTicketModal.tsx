@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useModalA11y } from '../hooks/useModalA11y';
 import { 
   X, 
   Search, 
@@ -27,7 +28,10 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
   allTickets,
   onViewTicket
 }) => {
-  if (!isOpen) return null;
+  // NOTE: this modal is always mounted and toggled via `isOpen`. The guard must
+  // come *after* the hooks, otherwise opening it changes the hook count between
+  // renders and React throws "Rendered more hooks than during the previous render".
+  const dialogRef = useModalA11y<HTMLDivElement>(isOpen, onClose);
 
   const [query, setQuery] = useState('');
   const [searched, setSearched] = useState(false);
@@ -53,9 +57,18 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
     window.open(link, '_blank', 'noopener,noreferrer');
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full text-white shadow-2xl overflow-hidden my-auto animate-in fade-in duration-200">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="manage-ticket-title"
+        tabIndex={-1}
+        className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full text-white shadow-2xl overflow-hidden my-auto animate-in fade-in duration-200"
+      >
         
         {/* Header */}
         <div className="p-5 sm:px-6 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
@@ -64,7 +77,7 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
               <TicketIcon className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-white font-['Outfit']">
+              <h3 id="manage-ticket-title" className="font-bold text-base text-white font-['Lato']">
                 Manage & Retrieve Tickets
               </h3>
               <p className="text-xs text-slate-400">
@@ -144,7 +157,7 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
                       <span className="text-[11px] font-mono font-bold text-amber-400">
                         {foundTicket.bookingRef}
                       </span>
-                      <h4 className="text-base font-bold text-white font-['Outfit'] mt-0.5">
+                      <h4 className="text-base font-bold text-white font-['Lato'] mt-0.5">
                         {foundTicket.origin} → {foundTicket.destination}
                       </h4>
                       <p className="text-xs text-slate-400">

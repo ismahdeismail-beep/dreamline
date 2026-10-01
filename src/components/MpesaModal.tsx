@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useModalA11y } from '../hooks/useModalA11y';
 import { 
   X, 
   Smartphone, 
@@ -12,6 +13,7 @@ import {
 import { BusSchedule } from '../data/dreamlineData';
 
 interface MpesaModalProps {
+  // Non-nullable: App renders this component only when a checkout is pending.
   bookingData: {
     bus: BusSchedule;
     seats: string[];
@@ -22,7 +24,7 @@ interface MpesaModalProps {
     pickupPoint: string;
     dropoffPoint: string;
     totalAmount: number;
-  } | null;
+  };
   onClose: () => void;
   onPaymentSuccess: (receiptData: {
     bookingRef: string;
@@ -36,7 +38,8 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
   onClose,
   onPaymentSuccess
 }) => {
-  if (!bookingData) return null;
+  // Mounted only while a checkout is in flight, so it is always "open".
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   const [phone, setPhone] = useState(bookingData.passengerPhone);
   const [status, setStatus] = useState<'idle' | 'sending' | 'prompt_sent' | 'success'>('idle');
@@ -86,7 +89,14 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full text-slate-900 shadow-2xl overflow-hidden animate-in fade-in duration-200">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mpesa-modal-title"
+        tabIndex={-1}
+        className="bg-white rounded-3xl max-w-md w-full text-slate-900 shadow-2xl overflow-hidden animate-in fade-in duration-200"
+      >
         
         {/* M-PESA Header */}
         <div className="bg-[#008000] text-white p-5 flex items-center justify-between">
@@ -95,7 +105,7 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
               M
             </div>
             <div>
-              <h3 className="font-extrabold text-base tracking-tight">
+              <h3 id="mpesa-modal-title" className="font-extrabold text-base tracking-tight">
                 M-PESA Express Checkout
               </h3>
               <p className="text-xs text-emerald-100">

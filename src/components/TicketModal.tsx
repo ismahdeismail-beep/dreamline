@@ -1,4 +1,5 @@
 import React from 'react';
+import { useModalA11y } from '../hooks/useModalA11y';
 import { 
   X, 
   Printer, 
@@ -15,12 +16,14 @@ import {
 import { BookingTicket, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 
 interface TicketModalProps {
-  ticket: BookingTicket | null;
+  // Non-nullable: App renders this component only when a ticket is selected.
+  ticket: BookingTicket;
   onClose: () => void;
 }
 
 export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => {
-  if (!ticket) return null;
+  // Mounted only while a ticket is being viewed, so it is always "open".
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   const handlePrint = () => {
     window.print();
@@ -34,7 +37,14 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-xl w-full text-white shadow-2xl overflow-hidden my-auto animate-in zoom-in-95 duration-200">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ticket-modal-title"
+        tabIndex={-1}
+        className="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-xl w-full text-white shadow-2xl overflow-hidden my-auto animate-in zoom-in-95 duration-200"
+      >
         
         {/* Top Header Controls (Hidden on print) */}
         <div className="p-4 sm:px-6 bg-slate-950 border-b border-slate-800 flex items-center justify-between print:hidden">
@@ -72,7 +82,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
                 <Bus className="w-6 h-6 stroke-[2.3]" />
               </div>
               <div>
-                <h2 className="text-xl font-black tracking-tight font-['Outfit'] text-white">
+                <h2 id="ticket-modal-title" className="text-xl font-black tracking-tight font-['Lato'] text-white">
                   DREAMLINE EXPRESS
                 </h2>
                 <p className="text-[11px] text-amber-400 font-semibold tracking-wider uppercase">
@@ -96,7 +106,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Origin Station</span>
-                <span className="text-lg font-black text-white font-['Outfit']">{ticket.origin}</span>
+                <span className="text-lg font-black text-white font-['Lato']">{ticket.origin}</span>
                 <span className="text-xs text-amber-300 block font-mono">{ticket.departureTime}</span>
               </div>
 
@@ -110,7 +120,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
 
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Destination</span>
-                <span className="text-lg font-black text-white font-['Outfit']">{ticket.destination}</span>
+                <span className="text-lg font-black text-white font-['Lato']">{ticket.destination}</span>
                 <span className="text-xs text-amber-300 block font-mono">{ticket.arrivalTime}</span>
               </div>
             </div>
