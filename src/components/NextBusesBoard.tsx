@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Clock, 
-  Bus, 
-  MapPin, 
-  MessageSquare, 
-  Armchair, 
-  Shield, 
-  Wifi, 
-  Sparkles,
+import {
+  MessageSquare,
   ChevronRight,
-  Zap,
   ArrowRight
 } from 'lucide-react';
 import { 

@@ -1,16 +1,12 @@
 import React from 'react';
-import { 
-  X, 
-  Printer, 
-  Share2, 
-  MessageSquare, 
-  CheckCircle2, 
-  Bus, 
-  MapPin, 
-  Clock, 
-  QrCode, 
-  ShieldCheck, 
-  Download
+import {
+  X,
+  Printer,
+  MessageSquare,
+  CheckCircle2,
+  Bus,
+  QrCode,
+  ShieldCheck
 } from 'lucide-react';
 import { BookingTicket, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 

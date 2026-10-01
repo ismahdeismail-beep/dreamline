@@ -1,16 +1,10 @@
 import React from 'react';
-import { 
-  ShieldCheck, 
-  Wifi, 
-  Armchair, 
-  Radio, 
-  Clock, 
-  Sparkles, 
-  Check, 
-  MessageSquare, 
-  Tv, 
-  Zap, 
-  Coffee,
+import {
+  ShieldCheck,
+  Armchair,
+  Radio,
+  Check,
+  MessageSquare,
   Users
 } from 'lucide-react';
 import { DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';

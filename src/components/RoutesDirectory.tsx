@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  MapPin, 
-  Clock, 
-  Route as RouteIcon, 
-  MessageSquare, 
-  ArrowRight, 
-  Search, 
-  CheckCircle2,
-  Sparkles,
+import {
+  Route as RouteIcon,
+  MessageSquare,
+  ArrowRight,
+  Search,
   ChevronRight
 } from 'lucide-react';
 import { 

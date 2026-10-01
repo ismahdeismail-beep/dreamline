@@ -4,7 +4,7 @@ Technical reference for the Dreamline client application.
 
 ## Overview
 
-Dreamline is a **single-page React application with no backend**. All domain data (schedules, routes, offices, tickets) ships as static TypeScript modules in `src/data/`, and all runtime state lives in React `useState` hooks inside `App.tsx`. Payments are simulated; no real M-PESA API is called.
+Dreamline is a **single-page React application with no backend**. All domain data (schedules, routes, offices, tickets) ships as static TypeScript modules in `src/data/`, and all runtime state lives in React `useState` hooks inside `App.tsx`. Checkout hands off to WhatsApp — no payment API is called from the client.
 
 ```
 ┌────────────────────────────── Browser ───────────────────────────────┐
@@ -167,8 +167,8 @@ interface BookingTicket {
 
 ## Known gaps
 
-1. **No backend.** `express`, `tsx`, and `dotenv` are dependencies but no server entrypoint exists (`npm run clean` even removes a hypothetical `server.js`).
-2. **Gemini not wired.** `@google/genai` is installed and `GEMINI_API_KEY` is documented in `.env.example`, but no source file imports the SDK or reads the key.
+1. **No backend — and no server stack.** The client is a pure SPA. Unused server-side packages (`express`, `tsx`, `dotenv`) and the unused Gemini/animation SDKs (`@google/genai`, `motion`) were removed from `package.json` during repo cleanup; add them back only when there is real code to use them.
+2. **Gemini not wired.** `GEMINI_API_KEY` is documented in `.env.example` but no code imports an AI SDK or reads the key.
 3. **M-PESA STK deliberately deferred.** Checkout hands off to WhatsApp instead. `MpesaModal.tsx` is a complete but unwired stub — hooking it up requires Safaricom Daraja credentials, a server endpoint to initiate/verify STK pushes, and a re-connect of `SeatBookingModal` → `MpesaModal`.
 4. **No persistence.** Bookings are lost on refresh; there is no `localStorage`/DB layer.
 5. **No routing.** Single page; navigation is scroll-based via `document.getElementById(...).scrollIntoView()`.

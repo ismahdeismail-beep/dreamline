@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Smartphone, 
-  CheckCircle2, 
-  Loader2, 
-  ShieldCheck, 
-  AlertCircle,
-  ArrowRight,
-  Sparkles
+import {
+  X,
+  Smartphone,
+  CheckCircle2,
+  Loader2,
+  ShieldCheck,
+  ArrowRight
 } from 'lucide-react';
 import { BusSchedule } from '../data/dreamlineData';
 

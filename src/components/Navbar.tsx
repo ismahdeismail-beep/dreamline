@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Bus, 
-  Phone, 
-  MessageSquare, 
-  Ticket, 
-  MapPin, 
-  Menu, 
-  X, 
-  ShieldCheck, 
-  Clock,
-  Sparkles
+import {
+  Bus,
+  MessageSquare,
+  Ticket,
+  Menu,
+  X,
+  ShieldCheck,
+  Clock
 } from 'lucide-react';
 import { DISPLAY_WHATSAPP_NUMBER, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 

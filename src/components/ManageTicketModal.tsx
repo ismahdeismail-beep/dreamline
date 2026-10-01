@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  Search, 
-  Ticket as TicketIcon, 
-  Calendar, 
-  MapPin, 
-  MessageSquare, 
-  Printer, 
-  AlertCircle,
-  CheckCircle2,
-  Clock,
-  ArrowRight
+import {
+  X,
+  Search,
+  Ticket as TicketIcon,
+  MessageSquare,
+  Printer,
+  AlertCircle
 } from 'lucide-react';
 import { BookingTicket, DEMO_TICKETS, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 

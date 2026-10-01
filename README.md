@@ -33,12 +33,10 @@
 | Build | Vite 8 (rolldown) |
 | Styling | Tailwind CSS 4 via `@tailwindcss/vite` |
 | Icons | lucide-react |
-| Animation | motion |
 | Fonts | Outfit, Plus Jakarta Sans (Google Fonts) |
 | Hosting | Vercel |
-| Optional (not yet wired) | `@google/genai`, express, dotenv |
 
-> **Note:** `@google/genai`, `express`, and `dotenv` are declared in `package.json` but no code imports them yet — there is no server and no Gemini feature in the current client. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#known-gaps).
+> **Keep it lean:** the dependency list is intentionally small — React, Vite, Tailwind, and icons only. There is no backend, no animation library, and no unused SDKs. `GEMINI_API_KEY` remains reserved for a future phase but nothing reads it today.
 
 ## Prerequisites
 

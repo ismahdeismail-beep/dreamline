@@ -1,11 +1,10 @@
 import React from 'react';
-import { 
-  MapPin, 
-  Phone, 
-  Clock, 
-  MessageSquare, 
-  Building2, 
-  ArrowUpRight 
+import {
+  MapPin,
+  Phone,
+  Clock,
+  MessageSquare,
+  Building2
 } from 'lucide-react';
 import { OFFICE_LOCATIONS, buildWhatsAppLink } from '../data/dreamlineData';
 

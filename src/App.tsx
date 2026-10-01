@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  Bus, 
-  MapPin, 
-  Clock, 
-  MessageSquare, 
-  CreditCard, 
-  Ticket as TicketIcon, 
-  CheckCircle2, 
-  Filter, 
-  ChevronRight,
-  Shield,
-  ArrowRight,
-  Sparkles,
-  Info
+import {
+  useState
+} from 'react';
+import {
+  MessageSquare,
+  ArrowRight
 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';

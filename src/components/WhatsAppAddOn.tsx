@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { 
-  MessageSquare, 
-  X, 
-  Send, 
-  Copy, 
-  Check, 
-  Clock, 
-  Bus, 
-  Tag, 
-  HelpCircle, 
-  PhoneCall, 
-  ExternalLink,
+import {
+  MessageSquare,
+  X,
+  Send,
+  Copy,
+  Check,
+  Clock,
+  Bus,
+  Tag,
+  HelpCircle,
   ChevronRight,
   Shield,
   Settings
