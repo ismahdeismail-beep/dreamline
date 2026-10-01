@@ -3,16 +3,10 @@ import {
   X, 
   Bus, 
   MapPin, 
-  Calendar, 
-  Clock, 
-  Check, 
   User, 
   Phone, 
-  CreditCard, 
   MessageSquare, 
-  ShieldCheck, 
-  Info,
-  Sparkles
+  Info
 } from 'lucide-react';
 import { 
   BusSchedule, 
@@ -23,31 +17,17 @@ import {
 interface SeatBookingModalProps {
   bus: BusSchedule | null;
   onClose: () => void;
-  onProceedToMpesa: (bookingData: {
-    bus: BusSchedule;
-    seats: string[];
-    passengerName: string;
-    passengerPhone: string;
-    passengerEmail: string;
-    idNumber: string;
-    pickupPoint: string;
-    dropoffPoint: string;
-    totalAmount: number;
-  }) => void;
 }
 
 export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   bus,
-  onClose,
-  onProceedToMpesa
+  onClose
 }) => {
   if (!bus) return null;
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
-  const [passengerEmail, setPassengerEmail] = useState('');
-  const [idNumber, setIdNumber] = useState('');
   const [pickupPoint, setPickupPoint] = useState(bus.pickupPoints[0] || 'Main Terminal');
   const [dropoffPoint, setDropoffPoint] = useState(bus.dropoffPoints[0] || 'Main Stage');
   const [errorMsg, setErrorMsg] = useState('');
@@ -77,51 +57,17 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
     }
   };
 
-  const validateInputs = () => {
-    if (selectedSeats.length === 0) {
-      setErrorMsg('Please select at least one seat on the coach map.');
-      return false;
-    }
-    if (!passengerName.trim()) {
-      setErrorMsg('Please enter primary passenger full name.');
-      return false;
-    }
-    if (!passengerPhone.trim() || passengerPhone.length < 9) {
-      setErrorMsg('Please enter a valid Safaricom phone number for M-Pesa.');
-      return false;
-    }
-    if (!idNumber.trim()) {
-      setErrorMsg('National ID or Passport number is required by NTSA regulations.');
-      return false;
-    }
-    return true;
-  };
-
-  const handleMpesaClick = () => {
-    if (!validateInputs()) return;
-    onProceedToMpesa({
-      bus,
-      seats: selectedSeats,
-      passengerName,
-      passengerPhone,
-      passengerEmail: passengerEmail || `${passengerPhone}@dreamline.customer`,
-      idNumber,
-      pickupPoint,
-      dropoffPoint,
-      totalAmount
-    });
-  };
-
-  const handleWhatsAppBookingDesk = () => {
+  // WhatsApp-first checkout: users connect to the booking desk for further
+  // info and payment instructions. M-PESA STK push is not configured yet.
+  const handleWhatsAppContinue = () => {
     if (selectedSeats.length === 0) {
       setErrorMsg('Please pick your desired seat(s) first.');
       return;
     }
     const nameStr = passengerName || 'Customer';
     const phoneStr = passengerPhone || 'Pending';
-    const msg = `Habari Dreamline! I would like to reserve ${selectedSeats.length} seat(s) [${selectedSeats.join(', ')}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Passenger: ${nameStr} (Phone: ${phoneStr}). Total: KSh ${totalAmount.toLocaleString()}. Please reserve and advise payment.`;
-    const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
-    window.open(link, '_blank', 'noopener,noreferrer');
+    const msg = `Habari Dreamline! I would like to reserve ${selectedSeats.length} seat(s) [${selectedSeats.join(', ')}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Pickup: ${pickupPoint}. Dropoff: ${dropoffPoint}. Passenger: ${nameStr} (Phone: ${phoneStr}). Total: KSh ${totalAmount.toLocaleString()}. Please confirm availability and send payment instructions.`;
+    window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg), '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -343,46 +289,17 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-amber-400" />
-                      M-Pesa Safaricom Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={passengerPhone}
-                      onChange={(e) => setPassengerPhone(e.target.value)}
-                      placeholder="0712 345 678"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                      National ID / Passport No.
-                    </label>
-                    <input
-                      type="text"
-                      value={idNumber}
-                      onChange={(e) => setIdNumber(e.target.value)}
-                      placeholder="e.g. 29841203"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300">
-                    Email Address (for e-ticket receipt)
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                    <Phone className="w-3.5 h-3.5 text-amber-400" />
+                    Phone Number (optional)
                   </label>
                   <input
-                    type="email"
-                    value={passengerEmail}
-                    onChange={(e) => setPassengerEmail(e.target.value)}
-                    placeholder="e.g. passenger@gmail.com"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    type="tel"
+                    value={passengerPhone}
+                    onChange={(e) => setPassengerPhone(e.target.value)}
+                    placeholder="0712 345 678"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
                   />
                 </div>
               </div>
@@ -413,28 +330,21 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               )}
             </div>
 
-            {/* DUAL CHECKOUT OPTIONS */}
+            {/* SINGLE WHATSAPP-FIRST CHECKOUT */}
             <div className="pt-4 space-y-2.5">
-              {/* Primary: Instant M-Pesa STK push */}
               <button
                 type="button"
-                onClick={handleMpesaClick}
+                onClick={handleWhatsAppContinue}
                 disabled={selectedSeats.length === 0}
                 className="w-full py-3.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition-all cursor-pointer"
               >
-                <CreditCard className="w-4 h-4" />
-                <span>Pay KSh {totalAmount.toLocaleString()} via M-PESA STK Push</span>
+                <MessageSquare className="w-4 h-4 fill-white" />
+                <span>Continue on WhatsApp — KSh {totalAmount.toLocaleString()}</span>
               </button>
 
-              {/* Secondary: WhatsApp Hold & Reservation */}
-              <button
-                type="button"
-                onClick={handleWhatsAppBookingDesk}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
-                <span>Reserve Seats & Forward to WhatsApp Desk</span>
-              </button>
+              <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+                Our booking desk confirms your seats on WhatsApp and sends M-PESA payment instructions.
+              </p>
             </div>
 
           </div>

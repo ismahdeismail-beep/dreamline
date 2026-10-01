@@ -44,8 +44,8 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="flex items-center gap-3 justify-center md:justify-start">
             <CreditCard className="w-6 h-6 text-amber-400 shrink-0" />
             <div>
-              <p className="font-bold text-white text-xs">Instant M-PESA STK</p>
-              <p className="text-[11px] text-slate-500">Pay directly from your phone</p>
+              <p className="font-bold text-white text-xs">Easy M-PESA Payment</p>
+              <p className="text-[11px] text-slate-500">Pay after WhatsApp confirmation</p>
             </div>
           </div>
 

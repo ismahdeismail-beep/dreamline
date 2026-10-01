@@ -23,7 +23,6 @@ import { OfficeContacts } from './components/OfficeContacts';
 import { Footer } from './components/Footer';
 import { WhatsAppAddOn } from './components/WhatsAppAddOn';
 import { SeatBookingModal } from './components/SeatBookingModal';
-import { MpesaModal } from './components/MpesaModal';
 import { TicketModal } from './components/TicketModal';
 import { ManageTicketModal } from './components/ManageTicketModal';
 
@@ -47,17 +46,6 @@ export default function App() {
   
   // Booking flow state
   const [selectedBusForBooking, setSelectedBusForBooking] = useState<BusSchedule | null>(null);
-  const [pendingMpesaData, setPendingMpesaData] = useState<{
-    bus: BusSchedule;
-    seats: string[];
-    passengerName: string;
-    passengerPhone: string;
-    passengerEmail: string;
-    idNumber: string;
-    pickupPoint: string;
-    dropoffPoint: string;
-    totalAmount: number;
-  } | null>(null);
 
   // Tickets stored in state
   const [allTickets, setAllTickets] = useState<BookingTicket[]>(DEMO_TICKETS);
@@ -110,49 +98,6 @@ export default function App() {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  const handleProceedToMpesa = (bookingData: typeof pendingMpesaData) => {
-    setSelectedBusForBooking(null);
-    setPendingMpesaData(bookingData);
-  };
-
-  const handlePaymentSuccess = (receiptData: {
-    bookingRef: string;
-    mpesaReceipt: string;
-    paidAt: string;
-  }) => {
-    if (!pendingMpesaData) return;
-
-    const newTicket: BookingTicket = {
-      ticketId: `TKT-${Math.floor(10000 + Math.random() * 90000)}`,
-      bookingRef: receiptData.bookingRef,
-      busScheduleId: pendingMpesaData.bus.id,
-      coachName: pendingMpesaData.bus.coachName,
-      busNumber: pendingMpesaData.bus.busNumber,
-      coachType: pendingMpesaData.bus.coachType,
-      origin: pendingMpesaData.bus.origin,
-      destination: pendingMpesaData.bus.destination,
-      departureDate: pendingMpesaData.bus.departureDate,
-      departureTime: pendingMpesaData.bus.departureTime,
-      arrivalTime: pendingMpesaData.bus.arrivalTime,
-      pickupPoint: pendingMpesaData.pickupPoint,
-      dropoffPoint: pendingMpesaData.dropoffPoint,
-      seats: pendingMpesaData.seats,
-      passengerName: pendingMpesaData.passengerName,
-      passengerPhone: pendingMpesaData.passengerPhone,
-      passengerEmail: pendingMpesaData.passengerEmail,
-      idNumber: pendingMpesaData.idNumber,
-      totalAmount: pendingMpesaData.totalAmount,
-      paymentMethod: 'M-PESA',
-      paymentStatus: 'PAID',
-      mpesaReceiptNo: receiptData.mpesaReceipt,
-      bookedAt: `${new Date().toLocaleDateString()} ${receiptData.paidAt}`
-    };
-
-    setAllTickets([newTicket, ...allTickets]);
-    setPendingMpesaData(null);
-    setActiveTicketToView(newTicket);
   };
 
   const handleNavigateSection = (sectionId: string) => {
@@ -366,21 +311,11 @@ export default function App() {
       />
 
       {/* 10. MODALS */}
-      {/* A. Coach Seat Booking Modal */}
+      {/* A. Coach Seat Booking Modal — hands off to WhatsApp for confirmation */}
       {selectedBusForBooking && (
         <SeatBookingModal
           bus={selectedBusForBooking}
           onClose={() => setSelectedBusForBooking(null)}
-          onProceedToMpesa={handleProceedToMpesa}
-        />
-      )}
-
-      {/* B. M-PESA STK Push Checkout Modal */}
-      {pendingMpesaData && (
-        <MpesaModal
-          bookingData={pendingMpesaData}
-          onClose={() => setPendingMpesaData(null)}
-          onPaymentSuccess={handlePaymentSuccess}
         />
       )}
 

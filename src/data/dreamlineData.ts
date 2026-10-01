@@ -507,6 +507,13 @@ export const DEMO_TICKETS: BookingTicket[] = [
 ];
 
 export function buildWhatsAppLink(phone: string, message: string): string {
-  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  let cleanPhone = phone.replace(/[^0-9]/g, '');
+
+  // WhatsApp requires international format with no leading zero.
+  // Kenyan local numbers (07... / 01...) become 2547... / 2541...
+  if (cleanPhone.startsWith('0')) {
+    cleanPhone = `254${cleanPhone.slice(1)}`;
+  }
+
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
