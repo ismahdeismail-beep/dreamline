@@ -53,14 +53,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
-            <span className="hidden md:inline">Customer Helpline: +254 712 345 678</span>
+            <span className="hidden md:inline">Customer Helpline: 0788256042</span>
             <a 
               href={directWhatsAppLink}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 bg-slate-950 text-amber-400 px-2.5 py-0.5 rounded-full hover:bg-slate-900 transition-colors"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
               WhatsApp Booking Desk Active
             </a>
           </div>
@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => handleNavClick('next-buses')}
               className="hover:text-amber-400 transition-colors cursor-pointer py-1 flex items-center gap-1.5"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
               Next Buses
             </button>
             <button 
@@ -141,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Direct WhatsApp Action Button */}
             <button
               onClick={() => onOpenWhatsAppHub()}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 shadow-md shadow-emerald-950/40 rounded-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 active:bg-amber-700 shadow-md shadow-amber-950/40 rounded-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               title="Chat with Dreamline Booking Agent on WhatsApp"
             >
               <MessageSquare className="w-4 h-4 fill-white" />
@@ -153,10 +153,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => onOpenWhatsAppHub()}
-              className="p-2 text-emerald-400 bg-emerald-950/60 border border-emerald-800/80 rounded-lg"
+              className="p-2 text-amber-400 bg-amber-950/60 border border-amber-800/80 rounded-lg"
               aria-label="WhatsApp Desk"
             >
-              <MessageSquare className="w-5 h-5 fill-emerald-400" />
+              <MessageSquare className="w-5 h-5 fill-amber-400" />
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -184,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="text-left py-2 px-3 rounded-md hover:bg-slate-900 flex items-center justify-between"
             >
               <span>Next Available Buses</span>
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold">LIVE</span>
+              <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold">LIVE</span>
             </button>
             <button 
               onClick={() => handleNavClick('routes')} 
@@ -223,7 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenWhatsAppHub();
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-emerald-600 rounded-lg"
+              className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-amber-600 rounded-lg"
             >
               <MessageSquare className="w-4 h-4 fill-white" />
               Chat on WhatsApp ({DISPLAY_WHATSAPP_NUMBER})

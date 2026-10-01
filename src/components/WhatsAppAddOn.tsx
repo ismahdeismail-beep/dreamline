@@ -190,7 +190,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
             {showSettings && (
               <div className="mt-3 pt-3 border-t border-emerald-600/50 text-xs">
                 <label className="block text-emerald-100 mb-1 font-medium">
-                  Support WhatsApp Line (Kenyan format e.g. 254712345678):
+                  Support WhatsApp Line (Kenyan format e.g. 0788256042):
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -198,7 +198,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
                     value={customPhone}
                     onChange={(e) => setCustomPhone(e.target.value)}
                     className="flex-1 px-2.5 py-1.5 rounded bg-emerald-800 text-white placeholder-emerald-300 text-xs font-mono border border-emerald-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                    placeholder="254712345678"
+                    placeholder="0788256042"
                   />
                   <button
                     onClick={() => {

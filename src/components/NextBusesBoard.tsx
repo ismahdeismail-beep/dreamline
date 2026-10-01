@@ -59,8 +59,8 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-emerald-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-amber-400">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
               <span>Live Departure Board</span>
               <span aria-hidden="true">·</span>
               <span>Updated Real-Time</span>
@@ -74,7 +74,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
           </div>
 
           {/* Quick WhatsApp helper banner */}
-          <div className="p-3 bg-slate-950/80 border border-emerald-500/30 rounded-xl flex items-center gap-3">
+          <div className="p-3 bg-slate-950/80 border border-amber-500/30 rounded-xl flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-[#25D366]/20 text-[#25D366] flex items-center justify-center shrink-0">
               <MessageSquare className="w-5 h-5 fill-[#25D366]" />
             </div>
@@ -82,7 +82,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               <p className="text-xs font-bold text-white">Looking for a specific route time?</p>
               <button
                 onClick={() => onOpenWhatsAppHub('Habari Dreamline! Could you share the next bus departures from my city?')}
-                className="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 cursor-pointer"
+                className="text-[11px] text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 cursor-pointer"
               >
                 <span>Ask next bus on WhatsApp</span>
                 <ChevronRight className="w-3 h-3" />
@@ -157,7 +157,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                         <div className="w-16 h-0.5 bg-slate-700 relative my-1">
                           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-amber-400"></div>
                         </div>
-                        <span className="text-[10px] text-emerald-400 font-mono">Direct Express</span>
+                        <span className="text-[10px] text-amber-400 font-mono">Direct Express</span>
                       </div>
 
                       <div className="space-y-0.5 text-right">
@@ -186,7 +186,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   {/* Seat urgency status */}
                   <div className="flex items-center justify-between text-xs mb-4">
                     <span className="text-slate-400">Seats Available:</span>
-                    <span className={`font-mono font-bold ${isFewSeats ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    <span className={`font-mono font-bold ${isFewSeats ? 'text-amber-400' : 'text-amber-400'}`}>
                       {bus.availableSeats} of {bus.totalSeats} seats left
                     </span>
                   </div>
@@ -198,10 +198,10 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   <button
                     type="button"
                     onClick={() => handleWhatsAppInquiry(bus)}
-                    className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition-colors cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-500/40 text-xs font-bold transition-colors cursor-pointer"
                     title="Inquire about this bus on WhatsApp"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
+                    <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
                     <span>WhatsApp</span>
                   </button>
 

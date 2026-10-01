@@ -42,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <div className="flex items-center gap-3 justify-center md:justify-start">
-            <CreditCard className="w-6 h-6 text-emerald-400 shrink-0" />
+            <CreditCard className="w-6 h-6 text-amber-400 shrink-0" />
             <div>
               <p className="font-bold text-white text-xs">Instant M-PESA STK</p>
               <p className="text-[11px] text-slate-500">Pay directly from your phone</p>
@@ -58,7 +58,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <div className="flex items-center gap-3 justify-center md:justify-start">
-            <MessageSquare className="w-6 h-6 text-emerald-400 fill-emerald-400/20 shrink-0" />
+            <MessageSquare className="w-6 h-6 text-amber-400 fill-amber-400/20 shrink-0" />
             <div>
               <p className="font-bold text-white text-xs">24/7 WhatsApp Desk</p>
               <p className="text-[11px] text-slate-500">{DISPLAY_WHATSAPP_NUMBER}</p>
@@ -95,7 +95,7 @@ export const Footer: React.FC<FooterProps> = ({
               href={directWhatsApp}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-colors"
             >
               <MessageSquare className="w-3.5 h-3.5 fill-white" />
               <span>WhatsApp Helpline</span>
@@ -179,7 +179,7 @@ export const Footer: React.FC<FooterProps> = ({
             </li>
             <li className="flex items-center gap-2">
               <Phone className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-              <span className="font-mono">+254 712 345 678</span>
+              <span className="font-mono">0788256042</span>
             </li>
             <li className="flex items-center gap-2">
               <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
@@ -188,8 +188,8 @@ export const Footer: React.FC<FooterProps> = ({
               </a>
             </li>
             <li className="flex items-center gap-2">
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="font-mono text-emerald-300">WhatsApp: +254 712 345 678</span>
+              <MessageSquare className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="font-mono text-amber-300">WhatsApp: 0788256042</span>
             </li>
           </ul>
         </div>

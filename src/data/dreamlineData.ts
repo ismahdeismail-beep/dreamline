@@ -90,8 +90,8 @@ export const KENYAN_CITIES = [
   'Kilifi'
 ];
 
-export const DEFAULT_WHATSAPP_NUMBER = '254712345678';
-export const DISPLAY_WHATSAPP_NUMBER = '+254 712 345 678';
+export const DEFAULT_WHATSAPP_NUMBER = '0788256042';
+export const DISPLAY_WHATSAPP_NUMBER = '0788256042';
 
 export const POPULAR_ROUTES: RouteDetail[] = [
   {
@@ -407,48 +407,48 @@ export const OFFICE_LOCATIONS: OfficeLocation[] = [
     city: 'Nairobi',
     stationName: 'River Road Main Booking Terminal',
     address: 'Dreamline Plaza, River Road opposite Accra Road Junction, Nairobi CBD',
-    phone: '+254 712 345 678',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '24 Hours Daily'
   },
   {
     city: 'Mombasa',
     stationName: 'Mwembe Tayari Executive Terminal',
     address: 'Kenyatta Avenue, Near Mwembe Tayari Roundabout, Mombasa Island',
-    phone: '+254 722 998 877',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '05:00 AM - 11:00 PM Daily'
   },
   {
     city: 'Kisumu',
     stationName: 'Patel Flats Booking Office',
     address: 'Oginga Odinga Street, Patel Flats Complex, Kisumu City',
-    phone: '+254 733 112 233',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '06:00 AM - 10:00 PM'
   },
   {
     city: 'Nakuru',
     stationName: 'Nakuru Posta Booking Center',
     address: 'Geoffrey Kamau Way, Next to General Post Office, Nakuru',
-    phone: '+254 720 445 566',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '06:00 AM - 09:30 PM'
   },
   {
     city: 'Kisii',
     stationName: 'Kisii Central Terminus',
     address: 'Hospital Road, Behind Main Bus Park, Kisii Town',
-    phone: '+254 718 667 788',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '06:00 AM - 09:00 PM'
   },
   {
     city: 'Busia',
     stationName: 'Busia Customs Terminal',
     address: 'Customs Road, Near One-Stop Border Post, Busia',
-    phone: '+254 724 889 900',
-    whatsapp: '254712345678',
+    phone: '0788256042',
+    whatsapp: '0788256042',
     operatingHours: '06:30 AM - 08:30 PM'
   }
 ];
@@ -470,7 +470,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     dropoffPoint: 'Mwembe Tayari Terminal',
     seats: ['A2 (VIP Single)'],
     passengerName: 'Kennedy Mwangi',
-    passengerPhone: '+254 712 987 654',
+    passengerPhone: '0788256042',
     passengerEmail: 'kmwangi@example.com',
     idNumber: '29841203',
     totalAmount: 2200,
@@ -495,7 +495,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     dropoffPoint: 'Patel Flats Stage Kisumu',
     seats: ['B1', 'B2'],
     passengerName: 'Amina Hassan',
-    passengerPhone: '+254 722 456 789',
+    passengerPhone: '0788256042',
     passengerEmail: 'amina.h@example.com',
     idNumber: '31289401',
     totalAmount: 3800,

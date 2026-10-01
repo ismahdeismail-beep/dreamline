@@ -346,7 +346,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      <Phone className="w-3.5 h-3.5 text-amber-400" />
                       M-Pesa Safaricom Phone
                     </label>
                     <input
@@ -354,7 +354,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                       value={passengerPhone}
                       onChange={(e) => setPassengerPhone(e.target.value)}
                       placeholder="0712 345 678"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
                     />
                   </div>
 
@@ -395,7 +395,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-400">
                   <span>Passenger Service Charge & VAT</span>
-                  <span className="font-mono text-emerald-400">Included (KES 0.00)</span>
+                  <span className="font-mono text-amber-400">Included (KES 0.00)</span>
                 </div>
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
                   <span className="text-xs font-bold text-white uppercase tracking-wider">Total Payable</span>
@@ -420,7 +420,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 type="button"
                 onClick={handleMpesaClick}
                 disabled={selectedSeats.length === 0}
-                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition-all cursor-pointer"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Pay KSh {totalAmount.toLocaleString()} via M-PESA STK Push</span>
@@ -430,9 +430,9 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               <button
                 type="button"
                 onClick={handleWhatsAppBookingDesk}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
+                <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
                 <span>Reserve Seats & Forward to WhatsApp Desk</span>
               </button>
             </div>

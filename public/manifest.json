@@ -1,0 +1,25 @@
+{
+  "short_name": "Dreamline",
+  "name": "Dreamline Bus Kenya - Online Booking",
+  "icons": [
+    {
+      "src": "/images/hero-1.jpg",
+      "sizes": "192x192",
+      "type": "image/jpg"
+    },
+    {
+      "src": "/images/hero-2.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg"
+    },
+    {
+      "src": "/images/hero-3.jpg",
+      "sizes": "512x512",
+      "type": "image/jpg"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1e293b",
+  "background_color": "#0f172a"
+}

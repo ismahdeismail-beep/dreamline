@@ -79,9 +79,9 @@ export const OfficeContacts: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleOfficeWhatsApp(office)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
+                  <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
                   <span>Chat with {office.city} Desk</span>
                 </button>
               </div>

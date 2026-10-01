@@ -132,7 +132,7 @@ export const FleetAndSafety: React.FC<FleetAndSafetyProps> = ({ onOpenWhatsAppHu
                   onClick={() => onOpenWhatsAppHub(`Habari Dreamline! Could you share availability and fares for the ${c.name}?`)}
                   className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 fill-emerald-400 text-emerald-400" />
+                  <MessageSquare className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   <span>Ask about this Coach on WhatsApp</span>
                 </button>
               </div>
@@ -143,7 +143,7 @@ export const FleetAndSafety: React.FC<FleetAndSafetyProps> = ({ onOpenWhatsAppHu
         {/* Safety First Protocol Banner */}
         <div className="bg-slate-950 rounded-3xl border border-slate-800 p-8 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 uppercase tracking-widest">
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-400 uppercase tracking-widest">
               <ShieldCheck className="w-4 h-4" />
               <span>Uncompromised Road Safety</span>
             </div>

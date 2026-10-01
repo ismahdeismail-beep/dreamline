@@ -162,10 +162,10 @@ export const RoutesDirectory: React.FC<RoutesDirectoryProps> = ({
                 <button
                   type="button"
                   onClick={() => handleWhatsAppRouteCheck(route)}
-                  className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 text-xs font-bold transition-colors cursor-pointer"
                   title={`Enquire ${route.from} to ${route.to} on WhatsApp`}
                 >
-                  <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
+                  <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
                   <span>WhatsApp</span>
                 </button>
 

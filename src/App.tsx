@@ -214,9 +214,9 @@ export default function App() {
                   const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
                   window.open(link, '_blank', 'noopener,noreferrer');
                 }}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 text-xs font-bold transition-colors cursor-pointer"
               >
-                <MessageSquare className="w-4 h-4 fill-emerald-400" />
+                <MessageSquare className="w-4 h-4 fill-amber-400" />
                 <span>Ask Availability on WhatsApp</span>
               </button>
             </div>
@@ -254,7 +254,7 @@ export default function App() {
                         <div className="w-24 h-0.5 bg-slate-700 relative my-1">
                           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-400"></div>
                         </div>
-                        <span className="text-[10px] text-emerald-400 font-mono">Express Transit</span>
+                        <span className="text-[10px] text-amber-400 font-mono">Express Transit</span>
                       </div>
 
                       <div className="space-y-0.5">
@@ -301,10 +301,10 @@ export default function App() {
                           const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
                           window.open(link, '_blank', 'noopener,noreferrer');
                         }}
-                        className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 transition-colors cursor-pointer"
+                        className="p-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 transition-colors cursor-pointer"
                         title="Inquire this bus on WhatsApp"
                       >
-                        <MessageSquare className="w-4 h-4 fill-emerald-400" />
+                        <MessageSquare className="w-4 h-4 fill-amber-400" />
                       </button>
 
                       {/* Select Seats Online */}
