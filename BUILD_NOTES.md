@@ -39,3 +39,18 @@
 - Docs are currently STALE (still describe slate-950+amber dark theme, JPG manifest icons). Update them AFTER the re-theme commit lands.
 - Protect: WhatsApp-first checkout rule (0788256042 before STK), buildWhatsAppLink 0->254 normalization, single-number contact rule.
 - Supermemory unavailable (SUPERMEMORY_API_KEY not set) -- this file is the shared ledger instead.
+
+## STATE UPDATE 2026-10-01 ~23:50 (session hidden-moon refresh)
+### SPLIT-BRAIN RESOLVED -- parent is CANONICAL
+- C:\Users\ADMIN\Downloads\Dreamline\ is now a proper clone (full history de70d53..7c258d8 + new commit ecda1ee), remote origin=ismahdeismail-beep/dreamline configured, main AHEAD 1 (ecda1ee NOT pushed yet).
+- ecda1ee "feat: Dreamline light re-theme with official brand assets + coach photo banners" (23:39, Orchestrator): real Dreamline logo, amenity icons, indigo #34398e/#e52421/#f9f8fc Lato theme, CoachPhoto component, Tailwind scan excludes zip/+unused-photos/, SW re-registered in main.tsx (cache v3), hero images+docs restored. Documented verified: tsc=0 build=0 0 console errors 0 overflow@390px.
+- Parent uncommitted LIVE work (other session editing App.tsx + NextBusesBoard at 23:46, dreamlineData.ts at 23:41): +19 lines getTimeOfDayCategory() Morning/Afternoon/Night helper -- wiring TimeOfDay filter into coach board (their declutter todo). DO NOT TOUCH.
+### zip\dreamline clone = STALE / superseded
+- Still at origin/main 7c258d8 with orphaned WIP (4 modified files + favicons, mtimes 20:27-20:45, untouched ~1h). Superseded by parent ecda1ee. Treat as read-only archive; do not commit, do not deploy from here.
+### Other session todos (opencode.db)
+- ses_f07c quick-lagoon: p0-p6 completed; p7 "BLOCKED: push + Vercel deploy - no remote" is STALE (remote now configured) -- pending my help.
+- Subagents shiny-harbor (p2 re-theme in_progress) + glowing-meadow (p1 icons in_progress) -- check before assuming their todos are current.
+### My next actions this refresh
+1. Push parent ecda1ee to origin/main (auth switch ismahdeismail-beep) -- resolves their p7 push half without touching their dirty tree.
+2. Vercel preview of ecda1ee -- only from a CLEAN worktree snapshot (parent tree is dirty with live edits); check .vercel link first.
+3. Docs (README/ARCHITECTURE/DEPLOYMENT) still describe slate-950+amber dark theme -- update AFTER their TimeOfDay work lands.

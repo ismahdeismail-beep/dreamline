@@ -22,6 +22,25 @@ export interface BusSchedule {
   rating: number;
 }
 
+export type TimeOfDay = 'Morning' | 'Afternoon' | 'Night';
+
+/**
+ * Groups a departure time such as "06:30 AM" into a Morning / Afternoon / Night
+ * bucket, so the coach board can be narrowed with one filter instead of a long
+ * list of unfiltered cards.
+ */
+export function getTimeOfDayCategory(departureTime: string): TimeOfDay {
+  const match = departureTime.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  if (!match) return 'Morning';
+  let hour = parseInt(match[1], 10);
+  const meridiem = match[3].toUpperCase();
+  if (meridiem === 'PM' && hour !== 12) hour += 12;
+  if (meridiem === 'AM' && hour === 12) hour = 0;
+  if (hour < 12) return 'Morning';
+  if (hour < 17) return 'Afternoon';
+  return 'Night';
+}
+
 export interface RouteDetail {
   id: string;
   from: string;
