@@ -1,0 +1,6 @@
+{
+  "name": "Dreamline Bus Kenya - Online Booking & WhatsApp Support",
+  "description": "Book and manage inter-city bus tickets across Kenya effortlessly. Premium luxury coaches between Nairobi, Mombasa, Kisumu, Nakuru, Kisii, Busia with instant WhatsApp enquiry and M-Pesa payments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
