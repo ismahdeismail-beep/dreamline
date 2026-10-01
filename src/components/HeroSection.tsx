@@ -1,28 +1,19 @@
 import React, { useState } from 'react';
-import {
-  MapPin,
-  Calendar,
-  Users,
-  ArrowRightLeft,
-  Search,
-  ShieldCheck,
-  Wifi,
-  Armchair,
-  Clock,
-  Radio,
-  MessageSquare,
-} from 'lucide-react';
-import {
-  KENYAN_CITIES,
-  DEFAULT_WHATSAPP_NUMBER,
-  buildWhatsAppLink
-} from '../data/dreamlineData';
+import { MapPin, Calendar, Users, ArrowRightLeft, Search, MessageSquare } from 'lucide-react';
+import { KENYAN_CITIES, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 
 interface HeroSectionProps {
   onSearch: (params: { origin: string; destination: string; date: string; passengers: number }) => void;
   onOpenWhatsAppHub: (message?: string) => void;
   onSelectRouteQuick: (from: string, to: string) => void;
 }
+
+const BENEFITS = [
+  { img: '/amenities/vip.png', title: 'VIP Recliners', desc: '2x1 wide seats' },
+  { img: '/amenities/wi-fi.png', title: 'Free Wi-Fi', desc: 'Wi-Fi + charging' },
+  { img: '/amenities/seats.png', title: 'Comfort', desc: 'Extra legroom' },
+  { img: '/amenities/power.png', title: 'Power Onboard', desc: 'USB at every seat' },
+];
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
@@ -33,12 +24,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [destination, setDestination] = useState('Mombasa');
   const [travelDate, setTravelDate] = useState('2026-10-02');
   const [passengers, setPassengers] = useState(1);
-  const [seatClass, setSeatClass] = useState('All Classes');
 
   const handleSwap = () => {
-    const temp = origin;
     setOrigin(destination);
-    setDestination(temp);
+    setDestination(origin);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -47,229 +36,146 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   const handleWhatsAppRouteEnquiry = () => {
-    const msg = `Habari Dreamline! I am looking to book a bus from ${origin} to ${destination} on ${travelDate} for ${passengers} passenger(s) (${seatClass}). Could you please advise on available buses, departure times, and total fare?`;
-    const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
-    window.open(link, '_blank', 'noopener,noreferrer');
+    const msg = `Habari Dreamline! Bus from ${origin} to ${destination} on ${travelDate} for ${passengers} passenger(s). Times and fare?`;
+    window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg), '_blank', 'noopener,noreferrer');
   };
 
   const topCorridors = [
-    { from: 'Nairobi', to: 'Mombasa', tag: 'Most Popular' },
-    { from: 'Nairobi', to: 'Kisumu', tag: 'Fast Highway' },
-    { from: 'Nairobi', to: 'Nakuru', tag: 'Hourly' },
-    { from: 'Nairobi', to: 'Kisii', tag: 'Direct VIP' },
-    { from: 'Nairobi', to: 'Busia', tag: 'Border Express' }
+    { from: 'Nairobi', to: 'Mombasa' },
+    { from: 'Nairobi', to: 'Kisumu' },
+    { from: 'Nairobi', to: 'Nakuru' },
+    { from: 'Nairobi', to: 'Kisii' },
   ];
 
-  const benefits = [
-    { icon: Armchair, title: 'VIP Seating', desc: '2x1 ultra-wide recliners' },
-    { icon: ShieldCheck, title: 'Safety First', desc: 'NTSA compliant coaches' },
-    { icon: Radio, title: 'GPS Tracked', desc: '24/7 fleet telemetry' },
-    { icon: Wifi, title: 'Free Wi-Fi', desc: 'High-speed on board' },
-    { icon: Clock, title: 'On Schedule', desc: 'Guaranteed departures' },
-    { icon: MessageSquare, title: 'WhatsApp Desk', desc: 'Instant booking support' },
-  ];
+  const selectCls =
+    'w-full bg-white border border-slate-300 rounded-xl py-3 px-3.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer';
 
   return (
-    <section className="relative bg-slate-950 text-white pt-10 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Hero background image with dark overlay for readability */}
-      <div className="absolute inset-0 bg-[url('/images/hero-1.jpg')] bg-cover bg-center bg-no-repeat opacity-40" />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/60 to-slate-950" />
-
-      <div className="relative max-w-7xl mx-auto">
-
-        {/* Headline */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="flex items-center justify-center gap-2 text-sm font-medium text-amber-300">
-            <span>Kenya's Premier Luxury Coach Operator</span>
-          </div>
-
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-['Outfit'] text-white text-balance leading-tight">
-            Book tickets effortlessly online. Affordable rates.
+    <section className="bg-[#f9f8fc] pt-10 pb-14 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <p className="text-xs font-black tracking-widest uppercase text-[#34398e]">Kenya's luxury coach operator</p>
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+            Book your bus in <span className="text-[#34398e]">minutes.</span>
           </h1>
-
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            VIP recliners, GPS tracked coaches, free Wi-Fi, professional drivers, and instant WhatsApp booking.
+          <p className="text-base text-slate-600">
+            VIP coaches across Kenya. Pay with M-Pesa, get help on WhatsApp.
           </p>
-
-          {/* WhatsApp callout */}
-          <div className="inline-flex items-center gap-2 bg-slate-900/80 border border-slate-700 py-1.5 px-4 rounded-full text-xs text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>Prefer WhatsApp?</span>
-            <button
-              onClick={() => onOpenWhatsAppHub()}
-              className="text-amber-400 font-bold hover:underline cursor-pointer"
-            >
-              Chat for availability & next bus
-            </button>
-          </div>
         </div>
 
-        {/* Search Card */}
-        <div className="mt-10 max-w-5xl mx-auto bg-slate-900/95 border border-slate-800 rounded-2xl shadow-xl p-5 sm:p-7 backdrop-blur-xl">
-          <form onSubmit={handleSearchSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-end">
-
-              {/* Origin */}
+        {/* Search card */}
+        <div className="mt-8 bg-white border border-slate-200 rounded-2xl shadow-lg shadow-[#34398e]/5 p-5 sm:p-6">
+          <form onSubmit={handleSearchSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-end">
               <div className="md:col-span-3 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                  Departure City
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#34398e]" /> From
                 </label>
-                <select
-                  value={origin}
-                  onChange={(e) => setOrigin(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-3.5 text-sm font-semibold text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 cursor-pointer"
-                >
+                <select value={origin} onChange={(e) => setOrigin(e.target.value)} className={selectCls}>
                   {KENYAN_CITIES.map((city) => (
-                    <option key={city} value={city} className="bg-slate-900 text-white">{city}</option>
+                    <option key={city} value={city}>{city}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Swap */}
-              <div className="md:col-span-1 flex justify-center pb-1">
+              <div className="md:col-span-1 flex justify-center pb-0.5">
                 <button
                   type="button"
                   onClick={handleSwap}
-                  className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 flex items-center justify-center border border-slate-700 transition-transform active:scale-95 cursor-pointer"
-                  title="Swap Origin and Destination"
-                  aria-label="Swap Origin and Destination"
+                  className="w-10 h-10 rounded-xl bg-[#34398e]/5 hover:bg-[#34398e]/10 text-[#34398e] flex items-center justify-center border border-[#34398e]/20 transition-colors cursor-pointer"
+                  aria-label="Swap cities"
                 >
                   <ArrowRightLeft className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Destination */}
               <div className="md:col-span-3 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                  Arrival City
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#34398e]" /> To
                 </label>
-                <select
-                  value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-3.5 text-sm font-semibold text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 cursor-pointer"
-                >
-                  {KENYAN_CITIES.filter(c => c !== origin).map((city) => (
-                    <option key={city} value={city} className="bg-slate-900 text-white">{city}</option>
+                <select value={destination} onChange={(e) => setDestination(e.target.value)} className={selectCls}>
+                  {KENYAN_CITIES.filter((c) => c !== origin).map((city) => (
+                    <option key={city} value={city}>{city}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Date */}
-              <div className="md:col-span-3 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                  Travel Date
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-[#34398e]" /> Date
                 </label>
                 <input
                   type="date"
                   value={travelDate}
                   min="2026-10-01"
                   onChange={(e) => setTravelDate(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl py-2.5 px-3.5 text-sm font-semibold text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 cursor-pointer"
+                  className="w-full bg-white border border-slate-300 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer"
                 />
               </div>
 
-              {/* Passengers */}
               <div className="md:col-span-2 space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-amber-400" />
-                  Passengers
+                <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#34398e]" /> Seats
                 </label>
-                <select
-                  value={passengers}
-                  onChange={(e) => setPassengers(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl py-3 px-3.5 text-sm font-semibold text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 cursor-pointer"
-                >
-                  {[1, 2, 3, 4, 5, 6].map(num => (
-                    <option key={num} value={num} className="bg-slate-900 text-white">
-                      {num} {num === 1 ? 'Seat' : 'Seats'}
-                    </option>
+                <select value={passengers} onChange={(e) => setPassengers(Number(e.target.value))} className={selectCls}>
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <option key={num} value={num}>{num}</option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-800">
-              <div className="flex items-center gap-2 text-xs text-slate-400 self-start sm:self-center">
-                <span className="font-medium text-slate-300">Coach Tier:</span>
-                <div className="flex gap-1.5">
-                  {['All Classes', 'VIP 2x1', 'Executive'].map((tier) => (
-                    <button
-                      key={tier}
-                      type="button"
-                      onClick={() => setSeatClass(tier)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                        seatClass === tier
-                          ? 'bg-amber-400 text-slate-950 font-bold'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                      }`}
-                    >
-                      {tier}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={handleWhatsAppRouteEnquiry}
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition-all cursor-pointer"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Enquire on WhatsApp</span>
-                </button>
-
-                <button
-                  type="submit"
-                  className="flex-1 sm:flex-none flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-xs transition-all cursor-pointer"
-                >
-                  <Search className="w-4 h-4 stroke-[2.5]" />
-                  <span>Search Coaches</span>
-                </button>
-              </div>
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={handleWhatsAppRouteEnquiry}
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white hover:bg-emerald-50 text-emerald-700 font-bold text-sm border-2 border-emerald-600 transition-colors cursor-pointer"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Check on WhatsApp</span>
+              </button>
+              <button
+                type="submit"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-[#e52421] hover:bg-[#c11e1c] text-white font-bold text-sm shadow-md transition-colors cursor-pointer"
+              >
+                <Search className="w-4 h-4" />
+                <span>Search Buses</span>
+              </button>
             </div>
           </form>
         </div>
 
-        {/* Corridor chips */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs">
-          <span className="text-slate-400 font-medium">Trending corridors:</span>
+        {/* Popular routes */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm">
+          <span className="text-slate-500 font-bold text-xs">Popular:</span>
           {topCorridors.map((c) => (
             <button
               key={`${c.from}-${c.to}`}
-              onClick={() => {
-                setOrigin(c.from);
-                setDestination(c.to);
-                onSelectRouteQuick(c.from, c.to);
-              }}
-              className="px-3 py-1 rounded-lg bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-amber-400 border border-slate-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              onClick={() => { setOrigin(c.from); setDestination(c.to); onSelectRouteQuick(c.from, c.to); }}
+              className="px-3 py-1.5 rounded-full bg-white text-slate-700 hover:text-[#34398e] border border-slate-300 text-xs font-bold transition-colors cursor-pointer"
             >
-              <span>{c.from} → {c.to}</span>
-              <span className="text-[10px] text-amber-400/80 font-mono">({c.tag})</span>
+              {c.from} → {c.to}
             </button>
           ))}
         </div>
 
-        {/* Benefits grid */}
-        <div className="mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {benefits.map(({ icon: Icon, title, desc }) => (
-            <div
-              key={title}
-              className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 text-center space-y-1.5 hover:border-amber-500/40 transition-colors"
-            >
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 mx-auto flex items-center justify-center">
-                <Icon className="w-4 h-4" />
-              </div>
-              <h4 className="text-xs font-bold text-white">{title}</h4>
-              <p className="text-[11px] text-slate-400">{desc}</p>
+        {/* Benefits with official icons */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+          {BENEFITS.map((b) => (
+            <div key={b.title} className="bg-white border border-slate-200 rounded-xl p-4 text-center">
+              <img src={b.img} alt={b.title} className="w-10 h-10 mx-auto object-contain" loading="lazy" />
+              <h4 className="text-sm font-black text-slate-900 mt-2">{b.title}</h4>
+              <p className="text-xs text-slate-500">{b.desc}</p>
             </div>
           ))}
         </div>
 
+        <p className="mt-5 text-center text-xs text-slate-500">
+          Prefer chat?{' '}
+          <button onClick={() => onOpenWhatsAppHub()} className="text-emerald-700 font-bold hover:underline cursor-pointer">
+            Talk to us on WhatsApp
+          </button>
+        </p>
       </div>
     </section>
   );

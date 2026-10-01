@@ -7,4 +7,14 @@ coverage/
 .env*
 !.env.example
 
+# Stale archive copies of the project (not source; also excluded from Tailwind scan)
+zip/
+unused-photos/
+
+# Local verification artifacts
+.playwright-mcp/
+*.local
 .vercel
+
+# Scratch research scripts (one-off asset lookups)
+find-coaches.ps1

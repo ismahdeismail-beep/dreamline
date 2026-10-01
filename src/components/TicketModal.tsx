@@ -1,12 +1,16 @@
 import React from 'react';
-import {
-  X,
-  Printer,
-  MessageSquare,
-  CheckCircle2,
-  Bus,
-  QrCode,
-  ShieldCheck
+import { 
+  X, 
+  Printer, 
+  Share2, 
+  MessageSquare, 
+  CheckCircle2, 
+  Bus, 
+  MapPin, 
+  Clock, 
+  QrCode, 
+  ShieldCheck, 
+  Download
 } from 'lucide-react';
 import { BookingTicket, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 
@@ -35,7 +39,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         {/* Top Header Controls (Hidden on print) */}
         <div className="p-4 sm:px-6 bg-slate-950 border-b border-slate-800 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
             <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Booking Confirmed & Issued
             </span>
@@ -59,7 +63,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         </div>
 
         {/* Printable Ticket Slip */}
-        <div id="printable-ticket" className="p-6 sm:p-8 space-y-6 bg-slate-900">
+        <div id="printable-ticket" className="p-6 sm:p-8 space-y-6 bg-gradient-to-b from-slate-900 to-slate-950">
           
           {/* Ticket Header Brand */}
           <div className="flex items-start justify-between border-b border-slate-800 pb-5">
@@ -97,7 +101,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
               </div>
 
               <div className="flex flex-col items-center px-4">
-                <span className="text-[10px] text-amber-400 font-mono font-bold">DIRECT COACH</span>
+                <span className="text-[10px] text-emerald-400 font-mono font-bold">DIRECT COACH</span>
                 <div className="w-20 h-0.5 bg-amber-400/40 relative my-1">
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-400"></div>
                 </div>
@@ -147,7 +151,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
 
             <div>
               <span className="text-slate-500 text-[10px] uppercase block">Payment Status</span>
-              <span className="inline-flex items-center gap-1 text-amber-400 font-bold font-mono">
+              <span className="inline-flex items-center gap-1 text-emerald-400 font-bold font-mono">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {ticket.paymentStatus}
               </span>
@@ -161,7 +165,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
           <div className="flex items-center justify-between pt-2">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-xs text-slate-300">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>NTSA Regulated & Safety Tracked</span>
               </div>
               <p className="text-[11px] text-slate-500">
@@ -180,7 +184,7 @@ export const TicketModal: React.FC<TicketModalProps> = ({ ticket, onClose }) => 
         <div className="p-4 sm:px-6 bg-slate-950 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
           <button
             onClick={handleWhatsAppShare}
-            className="w-full sm:w-auto flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
+            className="w-full sm:w-auto flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-colors cursor-pointer"
           >
             <MessageSquare className="w-4 h-4 fill-white" />
             <span>Send Ticket to WhatsApp</span>

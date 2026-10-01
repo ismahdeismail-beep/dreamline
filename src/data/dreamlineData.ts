@@ -3,6 +3,8 @@ export interface BusSchedule {
   busNumber: string;
   coachName: string;
   coachType: 'VIP 2x1 Recliner' | 'Executive Luxury 2x2' | 'First Class Sleeper';
+  /** Optional photo of the coach type. Falls back to a branded placeholder when missing. */
+  coachImage?: string;
   origin: string;
   destination: string;
   departureTime: string;
@@ -90,8 +92,37 @@ export const KENYAN_CITIES = [
   'Kilifi'
 ];
 
-export const DEFAULT_WHATSAPP_NUMBER = '0788256042';
-export const DISPLAY_WHATSAPP_NUMBER = '0788256042';
+export const DEFAULT_WHATSAPP_NUMBER = '254712345678';
+export const DISPLAY_WHATSAPP_NUMBER = '+254 712 345 678';
+
+/**
+ * Coach photography keyed by coach type.
+ *
+ * Set these to your own licensed product shots before going live. The photos
+ * referenced here must be ones Dreamline has the right to publish — the three
+ * Wikimedia Commons files considered during prototyping were rejected because
+ * Wikimedia's robot policy forbids automated download of their media, and the
+ * CC BY / CC BY-SA licences would additionally require visible attribution.
+ *
+ * Leaving an entry undefined renders a branded placeholder instead of a broken
+ * image, so the UI is safe to deploy either way.
+ */
+export const COACH_IMAGES: Partial<Record<BusSchedule['coachType'], string>> = {
+  // 'VIP 2x1 Recliner': '/coaches/vip-2x1-recliner.jpg',
+  // 'Executive Luxury 2x2': '/coaches/executive-2x2.jpg',
+  // 'First Class Sleeper': '/coaches/first-class-sleeper.jpg'
+};
+
+/** Short badge text shown on the placeholder when no photo is configured. */
+export const COACH_TYPE_BADGE: Record<BusSchedule['coachType'], string> = {
+  'VIP 2x1 Recliner': '2+1',
+  'Executive Luxury 2x2': '2+2',
+  'First Class Sleeper': 'Sleeper'
+};
+
+export function coachImageFor(coachType: BusSchedule['coachType']): string | undefined {
+  return COACH_IMAGES[coachType];
+}
 
 export const POPULAR_ROUTES: RouteDetail[] = [
   {
@@ -407,48 +438,48 @@ export const OFFICE_LOCATIONS: OfficeLocation[] = [
     city: 'Nairobi',
     stationName: 'River Road Main Booking Terminal',
     address: 'Dreamline Plaza, River Road opposite Accra Road Junction, Nairobi CBD',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 712 345 678',
+    whatsapp: '254712345678',
     operatingHours: '24 Hours Daily'
   },
   {
     city: 'Mombasa',
     stationName: 'Mwembe Tayari Executive Terminal',
     address: 'Kenyatta Avenue, Near Mwembe Tayari Roundabout, Mombasa Island',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 722 998 877',
+    whatsapp: '254712345678',
     operatingHours: '05:00 AM - 11:00 PM Daily'
   },
   {
     city: 'Kisumu',
     stationName: 'Patel Flats Booking Office',
     address: 'Oginga Odinga Street, Patel Flats Complex, Kisumu City',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 733 112 233',
+    whatsapp: '254712345678',
     operatingHours: '06:00 AM - 10:00 PM'
   },
   {
     city: 'Nakuru',
     stationName: 'Nakuru Posta Booking Center',
     address: 'Geoffrey Kamau Way, Next to General Post Office, Nakuru',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 720 445 566',
+    whatsapp: '254712345678',
     operatingHours: '06:00 AM - 09:30 PM'
   },
   {
     city: 'Kisii',
     stationName: 'Kisii Central Terminus',
     address: 'Hospital Road, Behind Main Bus Park, Kisii Town',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 718 667 788',
+    whatsapp: '254712345678',
     operatingHours: '06:00 AM - 09:00 PM'
   },
   {
     city: 'Busia',
     stationName: 'Busia Customs Terminal',
     address: 'Customs Road, Near One-Stop Border Post, Busia',
-    phone: '0788256042',
-    whatsapp: '0788256042',
+    phone: '+254 724 889 900',
+    whatsapp: '254712345678',
     operatingHours: '06:30 AM - 08:30 PM'
   }
 ];
@@ -470,7 +501,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     dropoffPoint: 'Mwembe Tayari Terminal',
     seats: ['A2 (VIP Single)'],
     passengerName: 'Kennedy Mwangi',
-    passengerPhone: '0788256042',
+    passengerPhone: '+254 712 987 654',
     passengerEmail: 'kmwangi@example.com',
     idNumber: '29841203',
     totalAmount: 2200,
@@ -495,7 +526,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     dropoffPoint: 'Patel Flats Stage Kisumu',
     seats: ['B1', 'B2'],
     passengerName: 'Amina Hassan',
-    passengerPhone: '0788256042',
+    passengerPhone: '+254 722 456 789',
     passengerEmail: 'amina.h@example.com',
     idNumber: '31289401',
     totalAmount: 3800,
@@ -507,13 +538,6 @@ export const DEMO_TICKETS: BookingTicket[] = [
 ];
 
 export function buildWhatsAppLink(phone: string, message: string): string {
-  let cleanPhone = phone.replace(/[^0-9]/g, '');
-
-  // WhatsApp requires international format with no leading zero.
-  // Kenyan local numbers (07... / 01...) become 2547... / 2541...
-  if (cleanPhone.startsWith('0')) {
-    cleanPhone = `254${cleanPhone.slice(1)}`;
-  }
-
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }

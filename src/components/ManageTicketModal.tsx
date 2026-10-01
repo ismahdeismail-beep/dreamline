@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import {
-  X,
-  Search,
-  Ticket as TicketIcon,
-  MessageSquare,
-  Printer,
-  AlertCircle
+import { 
+  X, 
+  Search, 
+  Ticket as TicketIcon, 
+  Calendar, 
+  MapPin, 
+  MessageSquare, 
+  Printer, 
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { BookingTicket, DEMO_TICKETS, DEFAULT_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 
@@ -147,7 +152,7 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
                       </p>
                     </div>
 
-                    <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold">
                       {foundTicket.paymentStatus}
                     </span>
                   </div>
@@ -167,7 +172,7 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
                     </div>
                     <div>
                       <span className="text-slate-500 text-[10px] block">M-Pesa Receipt</span>
-                      <span className="font-mono text-amber-400 block">{foundTicket.mpesaReceiptNo || 'PAID'}</span>
+                      <span className="font-mono text-emerald-400 block">{foundTicket.mpesaReceiptNo || 'PAID'}</span>
                     </div>
                   </div>
 
@@ -176,9 +181,9 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleWhatsAppAssistance(foundTicket)}
-                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-500/30 text-xs font-semibold cursor-pointer"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 text-xs font-semibold cursor-pointer"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 fill-amber-400" />
+                      <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
                       <span>WhatsApp Desk</span>
                     </button>
 

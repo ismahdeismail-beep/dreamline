@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dreamline-pwa-v2';
+const CACHE_NAME = 'dreamline-pwa-v3';
 // Only real, same-origin URLs. The previous list contained '/public/...' paths
 // and a literal '*.tsx' glob, which made cache.addAll() 404 and fail install —
 // the root cause of hero images never being served from cache.
@@ -6,6 +6,7 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/logo.png',
   '/images/hero-1.jpg',
   '/images/hero-2.jpg',
   '/images/hero-3.jpg'

@@ -2,16 +2,14 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-const root = createRoot(document.getElementById('root')!);
-root.render(<App />);
+createRoot(document.getElementById('root')!).render(<App />);
 
-// Register service worker for PWA offline support
-if ('serviceWorker' in navigator) {
+// Register the PWA service worker (offline shell + asset caching).
+// Production only — a service worker in dev caches stale modules and is a pain to debug.
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then((registration) => {
-      console.log('SW registered: ', registration);
-    }).catch((registrationError) => {
-      console.log('SW registration failed: ', registrationError);
+    navigator.serviceWorker.register('/service-worker.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
     });
   });
 }

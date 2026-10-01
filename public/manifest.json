@@ -1,25 +1,23 @@
 {
+  "name": "Dreamline Express Kenya",
   "short_name": "Dreamline",
-  "name": "Dreamline Bus Kenya - Online Booking",
-  "icons": [
-    {
-      "src": "/images/hero-1.jpg",
-      "sizes": "192x192",
-      "type": "image/jpg"
-    },
-    {
-      "src": "/images/hero-2.jpg",
-      "sizes": "512x512",
-      "type": "image/jpg"
-    },
-    {
-      "src": "/images/hero-3.jpg",
-      "sizes": "512x512",
-      "type": "image/jpg"
-    }
-  ],
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#1e293b",
-  "background_color": "#0f172a"
+  "background_color": "#f9f8fc",
+  "theme_color": "#34398e",
+  "description": "Book Dreamline luxury coach tickets online across Kenya.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

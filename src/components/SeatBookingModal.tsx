@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  Bus, 
-  MapPin, 
-  User, 
-  Phone, 
-  MessageSquare, 
+import {
+  X,
+  Bus,
+  MapPin,
+  User,
+  Phone,
+  CreditCard,
+  MessageSquare,
+  ShieldCheck,
   Info
 } from 'lucide-react';
 import { 
@@ -17,17 +19,31 @@ import {
 interface SeatBookingModalProps {
   bus: BusSchedule | null;
   onClose: () => void;
+  onProceedToMpesa: (bookingData: {
+    bus: BusSchedule;
+    seats: string[];
+    passengerName: string;
+    passengerPhone: string;
+    passengerEmail: string;
+    idNumber: string;
+    pickupPoint: string;
+    dropoffPoint: string;
+    totalAmount: number;
+  }) => void;
 }
 
 export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   bus,
-  onClose
+  onClose,
+  onProceedToMpesa
 }) => {
   if (!bus) return null;
 
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
+  const [passengerEmail, setPassengerEmail] = useState('');
+  const [idNumber, setIdNumber] = useState('');
   const [pickupPoint, setPickupPoint] = useState(bus.pickupPoints[0] || 'Main Terminal');
   const [dropoffPoint, setDropoffPoint] = useState(bus.dropoffPoints[0] || 'Main Stage');
   const [errorMsg, setErrorMsg] = useState('');
@@ -57,47 +73,81 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
     }
   };
 
-  // WhatsApp-first checkout: users connect to the booking desk for further
-  // info and payment instructions. M-PESA STK push is not configured yet.
-  const handleWhatsAppContinue = () => {
+  const validateInputs = () => {
+    if (selectedSeats.length === 0) {
+      setErrorMsg('Please select at least one seat on the coach map.');
+      return false;
+    }
+    if (!passengerName.trim()) {
+      setErrorMsg('Please enter primary passenger full name.');
+      return false;
+    }
+    if (!passengerPhone.trim() || passengerPhone.length < 9) {
+      setErrorMsg('Please enter a valid Safaricom phone number for M-Pesa.');
+      return false;
+    }
+    if (!idNumber.trim()) {
+      setErrorMsg('National ID or Passport number is required by NTSA regulations.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleMpesaClick = () => {
+    if (!validateInputs()) return;
+    onProceedToMpesa({
+      bus,
+      seats: selectedSeats,
+      passengerName,
+      passengerPhone,
+      passengerEmail: passengerEmail || `${passengerPhone}@dreamline.customer`,
+      idNumber,
+      pickupPoint,
+      dropoffPoint,
+      totalAmount
+    });
+  };
+
+  const handleWhatsAppBookingDesk = () => {
     if (selectedSeats.length === 0) {
       setErrorMsg('Please pick your desired seat(s) first.');
       return;
     }
     const nameStr = passengerName || 'Customer';
     const phoneStr = passengerPhone || 'Pending';
-    const msg = `Habari Dreamline! I would like to reserve ${selectedSeats.length} seat(s) [${selectedSeats.join(', ')}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Pickup: ${pickupPoint}. Dropoff: ${dropoffPoint}. Passenger: ${nameStr} (Phone: ${phoneStr}). Total: KSh ${totalAmount.toLocaleString()}. Please confirm availability and send payment instructions.`;
-    window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg), '_blank', 'noopener,noreferrer');
+    const msg = `Habari Dreamline! I would like to reserve ${selectedSeats.length} seat(s) [${selectedSeats.join(', ')}] on ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination} on ${bus.departureDate} at ${bus.departureTime}. Passenger: ${nameStr} (Phone: ${phoneStr}). Total: KSh ${totalAmount.toLocaleString()}. Please reserve and advise payment.`;
+    const link = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg);
+    window.open(link, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full text-white shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
-        
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+      <div className="bg-white border border-slate-200 rounded-3xl max-w-4xl w-full text-slate-900 shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+
         {/* Modal Top Header */}
-        <div className="p-5 sm:px-7 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 sm:px-7 bg-[#f9f8fc] border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#34398e]/10 text-[#34398e] flex items-center justify-center">
               <Bus className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-bold font-['Outfit'] text-white">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
                   {bus.coachName}
                 </h3>
-                <span className="text-xs font-mono font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded">
+                <span className="text-xs font-bold bg-[#34398e]/10 text-[#34398e] px-2 py-0.5 rounded">
                   {bus.busNumber}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                {bus.origin} → {bus.destination} • Departure: {bus.departureTime} ({bus.departureDate})
+              <p className="text-xs text-slate-500">
+                {bus.origin} → {bus.destination} • {bus.departureTime} ({bus.departureDate})
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -289,17 +339,46 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                   />
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                      <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                      M-Pesa Safaricom Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={passengerPhone}
+                      onChange={(e) => setPassengerPhone(e.target.value)}
+                      placeholder="0712 345 678"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      National ID / Passport No.
+                    </label>
+                    <input
+                      type="text"
+                      value={idNumber}
+                      onChange={(e) => setIdNumber(e.target.value)}
+                      placeholder="e.g. 29841203"
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                    <Phone className="w-3.5 h-3.5 text-amber-400" />
-                    Phone Number (optional)
+                  <label className="text-xs font-semibold text-slate-300">
+                    Email Address (for e-ticket receipt)
                   </label>
                   <input
-                    type="tel"
-                    value={passengerPhone}
-                    onChange={(e) => setPassengerPhone(e.target.value)}
-                    placeholder="0712 345 678"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
+                    type="email"
+                    value={passengerEmail}
+                    onChange={(e) => setPassengerEmail(e.target.value)}
+                    placeholder="e.g. passenger@gmail.com"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
               </div>
@@ -312,7 +391,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-400">
                   <span>Passenger Service Charge & VAT</span>
-                  <span className="font-mono text-amber-400">Included (KES 0.00)</span>
+                  <span className="font-mono text-emerald-400">Included (KES 0.00)</span>
                 </div>
                 <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
                   <span className="text-xs font-bold text-white uppercase tracking-wider">Total Payable</span>
@@ -330,21 +409,28 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               )}
             </div>
 
-            {/* SINGLE WHATSAPP-FIRST CHECKOUT */}
+            {/* DUAL CHECKOUT OPTIONS */}
             <div className="pt-4 space-y-2.5">
+              {/* Primary: Instant M-Pesa STK push */}
               <button
                 type="button"
-                onClick={handleWhatsAppContinue}
+                onClick={handleMpesaClick}
                 disabled={selectedSeats.length === 0}
-                className="w-full py-3.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 transition-all cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
               >
-                <MessageSquare className="w-4 h-4 fill-white" />
-                <span>Continue on WhatsApp — KSh {totalAmount.toLocaleString()}</span>
+                <CreditCard className="w-4 h-4" />
+                <span>Pay KSh {totalAmount.toLocaleString()} via M-PESA STK Push</span>
               </button>
 
-              <p className="text-[11px] text-slate-400 text-center leading-relaxed">
-                Our booking desk confirms your seats on WhatsApp and sends M-PESA payment instructions.
-              </p>
+              {/* Secondary: WhatsApp Hold & Reservation */}
+              <button
+                type="button"
+                onClick={handleWhatsAppBookingDesk}
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <MessageSquare className="w-3.5 h-3.5 fill-emerald-400" />
+                <span>Reserve Seats & Forward to WhatsApp Desk</span>
+              </button>
             </div>
 
           </div>
