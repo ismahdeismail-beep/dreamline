@@ -15,12 +15,19 @@ Build output:
 
 ```
 dist/
-├── index.html                 (~1.6 kB)
-├── assets/index-*.css         (~55 kB, ~9 kB gzip)
-├── assets/index-*.js          (~343 kB, ~95 kB gzip)
-├── manifest.json              (PWA manifest)
-├── service-worker.js          (offline cache worker)
-└── images/                    (hero imagery)
+├── index.html                      (~1.8 kB)
+├── assets/index-*.css              (~47 kB, ~8 kB gzip)
+├── assets/index-*.js               (~325 kB, ~91 kB gzip)
+├── manifest.json                   (PWA manifest)
+├── service-worker.js               (offline cache worker)
+├── logo.png                        (brand logo, ~124 kB)
+├── android-chrome-192x192.png      (PWA icon)
+├── android-chrome-512x512.png      (PWA icon)
+├── apple-touch-icon.png
+├── favicon.ico / favicon-16x16.png / favicon-32x32.png
+├── amenities/                      (official amenity icons)
+├── brand/                          (brand asset library)
+└── images/                         (hero imagery)
 ```
 
 ## Vercel
@@ -73,16 +80,11 @@ The repo is `ismahdeismail-beep/dreamline` (public).
 
 ## PWA
 
-- **Manifest:** `public/manifest.json` — linked from `index.html` via `<link rel="manifest">`.
-- **Service worker:** `public/service-worker.js`, registered in `src/main.tsx` on `window.load`.
-- **Icons:** currently points at the hero JPGs. For proper install prompts, provide purpose-built icons:
-  - `public/icons/icon-192.png` (192×192)
-  - `public/icons/icon-512.png` (512×512)
-  - optional `maskable-512.png` for Android adaptive icons
-
-  Then update the `icons` array in `manifest.json` and re-deploy.
-
-After changing the manifest or service worker, hard-refresh (or unregister the old SW) — cached copies can persist.
+- **Manifest:** `public/manifest.json` — linked from `index.html` via `<link rel="manifest">`. Theme color `#34398e`, background `#f9f8fc`.
+- **Service worker:** `public/service-worker.js`, cache name `dreamline-pwa-v3`. Registered in `src/main.tsx` on `window.load` **in production only** — do not enable in dev, or Vite modules get cached and changes stop showing up.
+- **Icons:** the manifest points at real 192×192 and 512×512 PNGs (`android-chrome-192x192.png`, `android-chrome-512x512.png`, both `purpose: "any maskable"`), so install prompts render correctly. This replaces an earlier setup that pointed at hero JPGs.
+- **After any manifest or service-worker change**, bump the `CACHE_NAME` in `service-worker.js` and hard-refresh (or unregister the old worker) — cached copies persist aggressively.
+- `logo.png` is precached by the service worker.
 
 ## Post-deploy checklist
 
@@ -90,4 +92,6 @@ After changing the manifest or service worker, hard-refresh (or unregister the o
 2. `npm run build` → exit 0
 3. Push to `origin/main`
 4. `vercel deploy -y --no-wait` (or let Git integration handle it)
-5. Smoke-test: search a route → select seat → "Continue on WhatsApp" opens `wa.me/254788256042` (local format `0788256042`)
+5. Smoke-test: search a route → coach board filters to the matching corridor → select seat → "Continue on WhatsApp" opens `wa.me/254788256042` (local format `0788256042`)
+6. Verify no horizontal overflow at 390 px and zero console errors
+7. Confirm the service worker registered and `/logo.png` resolves in the deployed build

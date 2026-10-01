@@ -151,19 +151,44 @@ interface BookingTicket {
 | `OFFICE_LOCATIONS` | `OfficeLocation[]` | Office contacts section |
 | `DEMO_TICKETS` | `BookingTicket[]` | Pre-seeded tickets for Manage flow |
 | `buildWhatsAppLink(phone, message)` | fn | `wa.me` deep link with encoded text |
+| `coachImageFor(coachType)` | fn | Maps a coach type to its banner image, or `undefined` |
+| `getTimeOfDayCategory(departureTime)` | fn | Buckets `"06:30 AM"` → `Morning` \| `Afternoon` \| `Night` for the board filter |
 
 ## Styling system
 
-- **Palette:** `slate-950` canvas; **amber** (`amber-400`–`amber-500`) is the only accent used for CTAs, prices, focus rings, and highlights.
-- **Brand exceptions:** emerald/WhatsApp green is intentionally retained in `WhatsAppAddOn.tsx` and `MpesaModal.tsx`.
-- **Selection color:** `selection:bg-amber-400 selection:text-slate-950` on the root container.
-- **Dark-only** — no light theme or dark-mode toggle.
+- **Palette:** light theme. `--color-canvas` `#f9f8fc` is the page background; `--color-brand` `#34398e` (indigo) carries primary brand, prices, headings and active filter chips; `--color-accent` `#e52421` (red) is reserved for primary CTAs and urgent scarcity cues such as "4 of 33 seats left". Defined in `src/index.css` under `@theme`.
+- **Type:** Lato throughout, mapped to `--font-sans` / `--font-display` and set on `body` plus all headings in `@layer base`.
+- **Brand exceptions:** emerald/WhatsApp green is intentionally retained in `WhatsAppAddOn.tsx`, `MpesaModal.tsx`, and the WhatsApp affordances on the coach board.
+- **No dark mode.** The previous `slate-950` + amber dark theme has been removed.
+
+### Tailwind v4 source scanning
+
+Tailwind v4 scans the project for class names automatically. Two folders outside `src/`
+are excluded via `@source not` in `src/index.css`:
+
+- `zip/` — a stale clone of this project
+- `unused-photos/` — staging folder of unreviewed candidate coach photos
+
+Excluding them stops dead utilities (for example `bg-[url('/images/hero-1.jpg')]`) being
+emitted from markup that no longer exists in `src/`, which cut the production CSS from
+56.41 kB to ~47 kB.
 
 ## PWA
 
-- `public/manifest.json` — app name, theme colors, icons (currently hero images; see [DEPLOYMENT.md](DEPLOYMENT.md#pwa-icons)).
-- `public/service-worker.js` — basic cache-first asset caching.
-- Registered in `src/main.tsx` on `window.load`.
+- `public/manifest.json` — app name, theme color `#34398e`, background `#f9f8fc`, and real 192/512 icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`). The manifest previously pointed at hero JPGs, which produced poor install prompts; that is fixed.
+- `public/service-worker.js` — cache-first asset caching, cache name `dreamline-pwa-v3`, precaching `/logo.png`.
+- Registered in `src/main.tsx` on `window.load`, **production only** (`import.meta.env.PROD`) — a service worker in dev caches stale modules. Registration had been dropped entirely at one point, orphaning the manifest.
+
+## Coach photography
+
+`COACH_IMAGES` in `src/data/dreamlineData.ts` maps coach types to banner images, resolved
+per card through `coachImageFor()`. `BusSchedule.coachImage` overrides the type-level
+mapping for an individual departure. `CoachPhoto` renders an indigo branded placeholder
+when nothing is configured, so cards degrade cleanly instead of showing broken images.
+
+The map is intentionally empty. Candidates in `unused-photos/` must clear
+`scripts/photo-quality-gate.ps1` (landscape, aspect 1.3–2.6, short side ≥ 560 px) and have
+confirmed licensing before being wired.
 
 ## Known gaps
 

@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
-/* Stale archived copies of this project live outside src/ — keep them out of the
-   Tailwind v4 auto source scan so they cannot inject dead utilities (e.g. a
-   bg-[url('/images/hero-1.jpg')] class referencing an asset that does not exist). */
+/* Keep archived/stale copies of this project out of the Tailwind v4 auto source
+   scan. `zip/` is an old clone and `unused-photos/` is a staging folder of
+   unreviewed candidate photos; neither should contribute utilities. Excluding
+   them also stops dead classes like bg-[url('/images/hero-1.jpg')] being emitted
+   from markup that no longer exists in src/. */
 @source not "../zip";
 @source not "../unused-photos";
 
