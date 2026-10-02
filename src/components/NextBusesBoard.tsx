@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   BusSchedule,
   coachImageFor,
@@ -52,19 +52,79 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
     setTimeBucket('All');
   };
 
+  /* ---- Auto-advancing horizontal carousel ------------------------------- */
+  const trackRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReducedMotion(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  // Start from the first departure whenever the filters change.
+  useEffect(() => {
+    trackRef.current?.scrollTo({ left: 0 });
+  }, [selectedCorridor, timeBucket]);
+
+  // Pause while the pointer is over the row or something inside it has focus.
+  // Native listeners are used because React's delegated enter/leave events are
+  // unreliable for a horizontally scrolling track.
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const enter = () => { pausedRef.current = true; };
+    const leave = () => { pausedRef.current = false; };
+    el.addEventListener('mouseenter', enter);
+    el.addEventListener('mouseleave', leave);
+    el.addEventListener('focusin', enter);
+    el.addEventListener('focusout', leave);
+    return () => {
+      el.removeEventListener('mouseenter', enter);
+      el.removeEventListener('mouseleave', leave);
+      el.removeEventListener('focusin', enter);
+      el.removeEventListener('focusout', leave);
+    };
+  }, []);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (reducedMotion || !el || el.children.length < 2) return;
+    const id = window.setInterval(() => {
+      if (pausedRef.current) return;
+      const max = el.scrollWidth - el.clientWidth;
+      const step = el.clientWidth * 0.8;
+      // Loop back to the first card once the last one is showing.
+      const atEnd = el.scrollLeft + step >= max - 8;
+      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + step, behavior: 'smooth' });
+    }, 3400);
+    return () => window.clearInterval(id);
+  }, [reducedMotion, filtered.length]);
+
+  const nudge = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const next = el.scrollLeft + dir * el.clientWidth * 0.8;
+    el.scrollTo({ left: next < 0 ? 0 : Math.min(next, max), behavior: 'smooth' });
+  };
+
   const heading = searchSummary
-    ? `${searchSummary.origin} → ${searchSummary.destination}`
+    ? `${searchSummary.origin} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ ${searchSummary.destination}`
     : 'Next buses';
   const subheading = searchSummary
     ? `${filtered.length} ${filtered.length === 1 ? 'departure' : 'departures'} matching your search`
     : 'Pick a departure and reserve your seat.';
 
   return (
-    <section id="next-buses" className="py-14 px-4 sm:px-6 lg:px-8 bg-white border-y border-slate-200">
+    <section id="next-buses" className="py-14 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#f7f6fc] via-white to-[#f7f6fc] border-y border-slate-200/70">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-black tracking-widest uppercase text-emerald-600">● Live departures</p>
+            <p className="text-xs font-black tracking-widest uppercase text-emerald-600">ÃƒÂ¢Ã¢â‚¬â€Ã‚Â Live departures</p>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-1">{heading}</h2>
             <p className="text-sm text-slate-500">{subheading}</p>
           </div>
@@ -82,7 +142,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                {c === 'All' ? 'All' : `→ ${c}`}
+                {c === 'All' ? 'All' : `ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ ${c}`}
               </button>
             ))}
           </div>
@@ -119,7 +179,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
           <div className="text-center py-12 px-6 bg-[#f9f8fc] border border-dashed border-slate-300 rounded-2xl">
             <p className="font-black text-slate-900">No departures match those filters</p>
             <p className="text-sm text-slate-500 mt-1">
-              Try another corridor or time of day — or ask us directly and we&apos;ll find you a seat.
+              Try another corridor or time of day ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â or ask us directly and we&apos;ll find you a seat.
             </p>
             <div className="mt-4 flex items-center justify-center gap-3">
               <button
@@ -131,15 +191,26 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               </div>
           </div>
         ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="relative">
+          {/* Edge fades hint that the row continues past the viewport. */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent z-10" />
+
+          <div
+            ref={trackRef}
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:thin]"
+          >
           {filtered.map((bus) => {
             const few = bus.availableSeats <= 6;
             return (
-              <div key={bus.id} className="bg-[#f9f8fc] border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-[#34398e]/40 hover:shadow-md transition-all">
+              <div
+                key={bus.id}
+                className="shrink-0 w-[78vw] sm:w-[340px] lg:w-[380px] snap-start bg-white/70 backdrop-blur-md border border-white/60 rounded-2xl overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-xl hover:border-[#34398e]/30 transition-all duration-300"
+              >
                 <CoachPhoto
                   coachType={bus.coachType}
                   src={bus.coachImage ?? coachImageFor(bus.coachType)}
-                  alt={`${bus.coachName} — ${bus.coachType}`}
+                  alt={`${bus.coachName} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${bus.coachType}`}
                   className="h-24 sm:h-28 w-full border-b border-slate-200"
                 />
                 <div className="p-5">
@@ -190,6 +261,30 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               </div>
             );
           })}
+          </div>
+
+          {/* Manual controls ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the row also advances on its own. */}
+          <div className="hidden sm:flex items-center justify-center gap-3 mt-3">
+            <button
+              type="button"
+              onClick={() => nudge(-1)}
+              aria-label="Previous departures"
+              className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-[#34398e] hover:border-[#34398e]/40 cursor-pointer transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[11px] font-bold text-slate-500">
+              Swipe or use the arrows ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the row moves on its own
+            </span>
+            <button
+              type="button"
+              onClick={() => nudge(1)}
+              aria-label="Next departures"
+              className="w-9 h-9 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm flex items-center justify-center text-slate-600 hover:text-[#34398e] hover:border-[#34398e]/40 cursor-pointer transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
         )}
       </div>

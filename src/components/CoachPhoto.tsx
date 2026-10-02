@@ -29,15 +29,31 @@ export const CoachPhoto: React.FC<CoachPhotoProps> = ({
   const showPhoto = Boolean(src) && !failed;
 
   return (
-    <div className={`relative overflow-hidden bg-[#34398e]/5 ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       {showPhoto ? (
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          onError={() => setFailed(true)}
-          className="w-full h-full object-cover"
-        />
+        <>
+          {/* Blurred backdrop fills the letterboxing left by a wide band, so the
+              coach can stay whole and undistorted without dead space. */}
+          <img
+            src={src}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover scale-125 blur-2xl opacity-50"
+          />
+          <span className="absolute inset-0 bg-gradient-to-b from-slate-100/70 to-slate-50/70" />
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailed(true)}
+            /* Source photography is ~4:3 while the banner band is much wider.
+               object-contain keeps the whole coach visible and undistorted. */
+            className="relative w-full h-full object-contain object-center"
+          />
+        </>
       ) : (
         <div className="w-full h-full min-h-[120px] bg-gradient-to-br from-[#34398e] to-[#282c6e] flex flex-col items-center justify-center gap-1.5 text-white">
           <BusFront className="w-8 h-8 opacity-90" />

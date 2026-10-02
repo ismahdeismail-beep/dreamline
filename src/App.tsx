@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { NextBusesBoard } from './components/NextBusesBoard';
@@ -18,8 +18,30 @@ import {
   BookingTicket,
   DEMO_TICKETS,
 } from './data/dreamlineData';
+import { BookingPage } from './BookingPage';
 
 export default function App() {
+  // Dedicated booking page at /book/:busId. Kept as a tiny path check so the
+  // app stays dependency-free while the URL stays shareable.
+  const [path, setPath] = useState(() => window.location.pathname);
+  useEffect(() => {
+    const onPop = () => setPath(window.location.pathname);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  const goToBooking = (busId: string) => {
+    const next = '/book/' + encodeURIComponent(busId);
+    window.history.pushState({}, '', next);
+    setPath(next);
+    window.scrollTo(0, 0);
+  };
+  const goHome = () => {
+    window.history.pushState({}, '', '/');
+    setPath('/');
+    window.scrollTo(0, 0);
+  };
+
   // Navigation / Modals state
   const [isWhatsAppHubOpen, setIsWhatsAppHubOpen] = useState(false);
   const [whatsAppInitialMsg, setWhatsAppInitialMsg] = useState<string | undefined>(undefined);
@@ -87,6 +109,19 @@ export default function App() {
       passengers: 1
     });
     setSelectedRouteForWhatsApp({ from, to });
+
+    // Tapping a route should take the passenger straight to booking, so jump to
+    // the soonest departure on that corridor. Only fall back to the results list
+    // when no scheduled bus matches.
+    const match = schedulesToRender.find(
+      (s) => s.origin === from && s.destination === to
+    ) ?? schedulesToRender.find((s) => s.destination === to);
+
+    if (match) {
+      goToBooking(match.id);
+      return;
+    }
+
     const section = document.getElementById('search-results');
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
@@ -143,6 +178,17 @@ export default function App() {
     }
   };
 
+  // /book/:busId renders the standalone booking page instead of the landing page.
+  const bookMatch = path.match(/^\/book\/([^/]+)\/?$/);
+  if (bookMatch) {
+    const wantedId = decodeURIComponent(bookMatch[1]);
+    const bus =
+      schedulesToRender.find((s) => s.id === wantedId) ??
+      schedulesToRender.find((s) => s.busNumber === wantedId) ??
+      null;
+    return <BookingPage bus={bus} onBack={goHome} />;
+  }
+
   return (
     <div className="min-h-screen bg-[#f9f8fc] text-slate-900 flex flex-col font-sans">
       
@@ -163,7 +209,7 @@ export default function App() {
           />
         </div>
 
-        {/* 3. COACH BOARD — single canonical departure listing.
+        {/* 3. COACH BOARD Ã¢â‚¬â€ single canonical departure listing.
             `#search-results` is the scroll target for the hero search and the
             quick-route chips; the board itself keeps the `#next-buses` anchor
             used by the navbar. These used to be two separate coach lists
@@ -176,7 +222,7 @@ export default function App() {
                 ? { origin: searchParams.origin, destination: searchParams.destination }
                 : null
             }
-            onSelectBusToBook={(bus) => setSelectedBusForBooking(bus)}
+            onSelectBusToBook={(bus) => goToBooking(bus.id)}
             onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
           />
         </div>

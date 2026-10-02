@@ -1,6 +1,6 @@
 import React from 'react';
 import { MessageSquare } from 'lucide-react';
-import { DEFAULT_WHATSAPP_NUMBER, DISPLAY_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
+import { DEFAULT_WHATSAPP_NUMBER, DISPLAY_WHATSAPP_NUMBER, TEL_LINK, buildWhatsAppLink } from '../data/dreamlineData';
 
 interface FooterProps {
   onOpenManageTicket: () => void;
@@ -16,8 +16,8 @@ export const Footer: React.FC<FooterProps> = ({
   const directWhatsApp = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, 'Habari Dreamline! General assistance please.');
 
   return (
-    <footer className="bg-[#23265e] text-white/80 text-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-[#23265e] text-white/80 text-sm px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="space-y-3">
           <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Dreamline" className="h-9 w-auto object-contain bg-white rounded-lg px-1.5 py-0.5" />
@@ -54,9 +54,14 @@ export const Footer: React.FC<FooterProps> = ({
           <h4 className="font-black text-white text-xs uppercase tracking-wider mb-3">Contact</h4>
           <ul className="space-y-2 text-xs text-white/60">
             <li>River Road Terminal, Nairobi</li>
-            <li>+254 712 345 678</li>
+            <li><a href={TEL_LINK} className="hover:text-white">{DISPLAY_WHATSAPP_NUMBER}</a></li>
             <li><a href="mailto:info@dreamline.co.ke" className="hover:text-white">info@dreamline.co.ke</a></li>
-            <li><a href="tel:+254712345678" className="hover:text-white">Call our desk</a></li>
+            <li>
+              <a href={`${buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, 'Habari Dreamline! I would like to make a booking.')}`}
+                 target="_blank" rel="noopener noreferrer" className="hover:text-white">
+                WhatsApp us
+              </a>
+            </li>
           </ul>
         </div>
       </div>

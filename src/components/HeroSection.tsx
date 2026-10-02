@@ -45,7 +45,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section className="bg-[#f9f8fc] pt-10 pb-14 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <p className="text-xs font-black tracking-widest uppercase text-[#34398e]">Kenya's luxury coach operator</p>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">

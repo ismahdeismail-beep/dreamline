@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { MessageSquare, Ticket, Menu, X } from 'lucide-react';
-import { DISPLAY_WHATSAPP_NUMBER } from '../data/dreamlineData';
+import { MessageSquare, Phone, Ticket, Menu, X } from 'lucide-react';
+import { DISPLAY_WHATSAPP_NUMBER, TEL_LINK } from '../data/dreamlineData';
+import Button from './Button';
 
 interface NavbarProps {
   onOpenManageTicket: () => void;
@@ -21,20 +22,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-      {/* Slim top bar */}
-      <div className="bg-[#34398e] text-white text-xs py-1.5 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
-          <span className="font-semibold tracking-wide">Daily departures across Kenya</span>
-          <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
-            WhatsApp Desk Active
-          </span>
-        </div>
-      </div>
-
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-white/60 shadow-sm px-4 sm:px-6 lg:px-8">
       {/* Main bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between h-16">
           <div onClick={() => handleNavClick('hero')} className="flex items-center gap-2.5 cursor-pointer">
             <img src="/logo.png" alt="Dreamline Express" className="h-10 w-auto object-contain" />
@@ -56,20 +46,24 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           <div className="hidden sm:flex items-center gap-2.5">
-            <button
-              onClick={onOpenManageTicket}
-              className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-[#34398e] bg-[#34398e]/5 hover:bg-[#34398e]/10 border border-[#34398e]/20 rounded-lg transition-colors cursor-pointer"
-            >
+            {/* Polymorphic Button renders an <a> for tel: links, a <button> for
+                actions, and a <Link> when `as={Link}` Ã¢â‚¬â€ one visual language. */}
+            <Button as="a" href={TEL_LINK} variant="subtle" size="sm">
+              <Phone className="w-3.5 h-3.5" />
+              Call
+            </Button>
+            <Button onClick={onOpenManageTicket} variant="subtle" size="sm">
               <Ticket className="w-3.5 h-3.5" />
               My Ticket
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => onOpenWhatsAppHub()}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors cursor-pointer"
+              variant="whatsapp"
+              size="sm"
             >
               <MessageSquare className="w-4 h-4" />
               <span>WhatsApp</span>
-            </button>
+            </Button>
           </div>
 
           <div className="lg:hidden flex items-center gap-2">
@@ -85,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-1 text-sm font-bold text-slate-700">
+        <div className="lg:hidden border-t border-white/60 bg-white/80 backdrop-blur-xl px-4 pt-3 pb-5 space-y-1 text-sm font-bold text-slate-700">
           {[
             ['hero', 'Book'],
             ['next-buses', 'Next Buses'],
@@ -98,6 +92,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           ))}
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
+            <Button as="a" href={TEL_LINK} variant="subtle" fullWidth>
+              <Phone className="w-3.5 h-3.5" /> Call {DISPLAY_WHATSAPP_NUMBER}
+            </Button>
             <button
               onClick={() => { setMobileMenuOpen(false); onOpenManageTicket(); }}
               className="w-full py-2.5 text-xs font-bold text-[#34398e] bg-[#34398e]/5 border border-[#34398e]/20 rounded-lg"

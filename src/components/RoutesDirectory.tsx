@@ -56,52 +56,29 @@ export const RoutesDirectory: React.FC<RoutesDirectoryProps> = ({
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* The old three-column card grid took over a full screen of height just to
+            communicate "pick a route". One swipeable row does the same job. */}
+        <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 [scrollbar-width:thin]">
           {filteredRoutes.map((route) => (
-            <div key={route.id} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden flex flex-col hover:border-[#34398e]/40 hover:shadow-md transition-all">
-              <div className="h-1 w-full bg-gradient-to-r from-[#34398e] to-[#e52421]" />
-              <div className="p-5 flex flex-col flex-1">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#34398e]">{route.region}</p>
-                    <h3 className="text-lg font-black text-slate-900 leading-tight mt-1">
-                      {route.from} <span className="text-[#e52421]">→</span> {route.to}
-                    </h3>
-                    <p className="text-[11px] text-slate-500 mt-0.5">{route.distanceKm} km</p>
-                  </div>
-                </div>
-
-                <dl className="mt-4 grid grid-cols-3 divide-x divide-slate-100 rounded-xl bg-[#f9f8fc] border border-slate-100 py-3">
-                  <div className="px-2 text-center">
-                    <dt className="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Time</dt>
-                    <dd className="text-sm font-black text-slate-900 mt-0.5 flex items-center justify-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-400" />{route.estimatedHours}
-                    </dd>
-                  </div>
-                  <div className="px-2 text-center">
-                    <dt className="text-[10px] uppercase tracking-wide text-slate-400 font-bold">Standard</dt>
-                    <dd className="text-sm font-black text-slate-900 mt-0.5">{route.standardFare.toLocaleString()}</dd>
-                  </div>
-                  <div className="px-2 text-center">
-                    <dt className="text-[10px] uppercase tracking-wide text-slate-400 font-bold">VIP</dt>
-                    <dd className="text-sm font-black text-[#34398e] mt-0.5">{route.vipFare.toLocaleString()}</dd>
-                  </div>
-                </dl>
-
-                <p className="mt-3 text-[11px] text-slate-500 flex items-start gap-1.5">
-                  <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-slate-300" />
-                  <span>{route.popularPickup} → {route.popularDropoff}</span>
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => onSelectRoute(route.from, route.to)}
-                  className="mt-4 w-full py-2.5 rounded-xl bg-[#34398e] hover:bg-[#282c6e] text-white text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1"
-                >
-                  Book this route <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+            <button
+              key={route.id}
+              type="button"
+              onClick={() => onSelectRoute(route.from, route.to)}
+              className="shrink-0 w-[228px] snap-start text-left bg-white/80 backdrop-blur-md border border-white/70 rounded-2xl p-4 shadow-sm hover:shadow-lg hover:border-[#34398e]/40 transition-all cursor-pointer group"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#34398e]">{route.region}</p>
+              <h3 className="mt-1 font-black text-slate-900 leading-tight text-[15px]">
+                {route.from} <span className="text-[#e52421]">→</span> {route.to}
+              </h3>
+              <div className="mt-2 flex items-center gap-2 text-[11px] font-bold text-slate-500">
+                <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" />{route.estimatedHours}</span>
+                <span>&bull;</span>
+                <span className="text-slate-900">KSh {route.standardFare.toLocaleString()}</span>
               </div>
-            </div>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#34398e] group-hover:gap-2 transition-all">
+                Book <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </button>
           ))}
         </div>
 

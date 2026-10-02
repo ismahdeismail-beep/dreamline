@@ -20,7 +20,8 @@ import {
   DEFAULT_WHATSAPP_NUMBER, 
   DISPLAY_WHATSAPP_NUMBER, 
   OFFICE_LOCATIONS, 
-  buildWhatsAppLink 
+  buildWhatsAppLink,
+  TEL_LINK
 } from '../data/dreamlineData';
 
 interface WhatsAppAddOnProps {
@@ -117,13 +118,23 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
         {!isOpen && (
           <button
             onClick={onOpen}
-            className="hidden md:flex items-center gap-2 bg-slate-900/90 text-white px-3 py-1.5 rounded-full border border-slate-700 shadow-lg text-xs font-semibold hover:bg-slate-800 transition-all backdrop-blur-sm cursor-pointer"
+            className="hidden md:flex items-center gap-2 bg-slate-900/70 text-white px-3 py-1.5 rounded-full border border-white/20 shadow-lg backdrop-blur-xl text-xs font-semibold hover:bg-slate-800 transition-all backdrop-blur-sm cursor-pointer"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Live WhatsApp Desk</span>
             <span className="text-emerald-400">Online</span>
           </button>
         )}
+
+        {/* Call button sits beside WhatsApp so reaching the desk never requires
+            scrolling back up to the header on a phone. */}
+        <a
+          href={TEL_LINK}
+          aria-label={`Call the desk on ${DISPLAY_WHATSAPP_NUMBER}`}
+          className="w-14 h-14 rounded-full bg-[#34398e]/85 backdrop-blur-xl text-white flex items-center justify-center shadow-xl shadow-indigo-950/30 hover:bg-[#34398e] hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#34398e]/30 border border-white/25"
+        >
+          <PhoneCall className="w-6 h-6" />
+        </a>
 
         <button
           onClick={() => (isOpen ? onClose() : onOpen())}
@@ -146,7 +157,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
 
       {/* 2. EXPANDABLE WHATSAPP ASSISTANT & ENQUIRY HUB MODAL */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[440px] max-h-[82vh] flex flex-col bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[440px] max-h-[82vh] flex flex-col bg-white/85 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/60 overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
           
           {/* Header */}
           <div className="bg-[#075E54] text-white p-4">
@@ -190,7 +201,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
             {showSettings && (
               <div className="mt-3 pt-3 border-t border-emerald-600/50 text-xs">
                 <label className="block text-emerald-100 mb-1 font-medium">
-                  Support WhatsApp Line (Kenyan format e.g. 254712345678):
+                  Support WhatsApp Line (international format, digits only):
                 </label>
                 <div className="flex items-center gap-2">
                   <input
@@ -198,7 +209,7 @@ export const WhatsAppAddOn: React.FC<WhatsAppAddOnProps> = ({
                     value={customPhone}
                     onChange={(e) => setCustomPhone(e.target.value)}
                     className="flex-1 px-2.5 py-1.5 rounded bg-emerald-800 text-white placeholder-emerald-300 text-xs font-mono border border-emerald-600 focus:outline-none focus:ring-1 focus:ring-amber-400"
-                    placeholder="254712345678"
+                    placeholder="254788256042"
                   />
                   <button
                     onClick={() => {

@@ -9,7 +9,9 @@ import {
   CreditCard,
   MessageSquare,
   ShieldCheck,
-  Info
+  Info,
+  Armchair,
+  ChevronDown,
 } from 'lucide-react';
 import { 
   BusSchedule, 
@@ -49,6 +51,8 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
   const [pickupPoint, setPickupPoint] = useState(bus.pickupPoints[0] || 'Main Terminal');
   const [dropoffPoint, setDropoffPoint] = useState(bus.dropoffPoints[0] || 'Main Stage');
   const [errorMsg, setErrorMsg] = useState('');
+  // Seat selection is optional; keep the (tall) seat map collapsed on phones.
+  const [seatsOpen, setSeatsOpen] = useState(false);
 
   // This modal is mounted only while a bus is selected, so it is always "open".
   const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
@@ -146,7 +150,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                {bus.origin} → {bus.destination} • {bus.departureTime} ({bus.departureDate})
+                {bus.origin} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ {bus.destination} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ {bus.departureTime} ({bus.departureDate})
               </p>
             </div>
           </div>
@@ -163,46 +167,65 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
         {/* Modal Body: Split 2 columns (Left: Interactive Bus Layout, Right: Passenger & Boarding details) */}
         <div className="p-5 sm:p-7 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
           
-          {/* LEFT: COACH SEAT MAP (Lg: col-span-6) */}
-          <div className="lg:col-span-6 bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+          {/* Seats are optional, so on small screens the seat map stays collapsed by
+              default ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â otherwise it alone is taller than the whole modal and the
+              user must scroll ~850px just to reach the form. Always shown on lg+. */}
+            <button
+              type="button"
+              onClick={() => setSeatsOpen(o => !o)}
+              aria-expanded={seatsOpen}
+              className="lg:hidden w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-[#34398e]/5 border border-[#34398e]/15 text-left cursor-pointer"
+            >
+              <span className="flex items-center gap-2 text-sm font-bold text-[#34398e]">
+                <Armchair className="w-4 h-4" />
+                {seatsOpen ? 'Hide seat map' : 'Choose seats (optional)'}
+              </span>
+              <span className="text-xs font-semibold text-[#34398e]/70 flex items-center gap-1">
+                {selectedSeats.length > 0 ? `${selectedSeats.length} selected` : seatsOpen ? 'Tap a seat' : 'Skip'}
+                <ChevronDown className={`w-4 h-4 transition-transform ${seatsOpen ? 'rotate-180' : ''}`} />
+              </span>
+            </button>
+
+            {/* LEFT: COACH SEAT MAP (Lg: col-span-6) */}
+          <div className={`${seatsOpen ? 'flex' : 'hidden'} lg:flex lg:col-span-6 bg-gradient-to-b from-[#34398e] to-[#24285f] border border-[#34398e] rounded-2xl p-4 sm:p-5 flex-col justify-between`}>
             <div>
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                <span className="text-xs font-bold uppercase tracking-wider text-white/80">
                   Interactive Coach Seat Map
                 </span>
-                <span className="text-xs text-amber-400 font-medium">
+                <span className="text-xs text-white/70 font-medium">
                   {isVipCoach ? 'VIP 2x1 Recliner Layout' : 'Executive 2x2 Layout'}
                 </span>
               </div>
 
               {/* Legend */}
-              <div className="flex items-center justify-around p-2.5 bg-slate-900 rounded-xl border border-slate-800 text-[11px] mb-5">
+              <div className="flex items-center justify-around p-2.5 bg-white/5 rounded-xl border border-white/15 text-[11px] mb-5">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded bg-slate-800 border border-slate-600"></div>
+                  <div className="w-4 h-4 rounded bg-white/25 border border-white/60"></div>
                   <span className="text-slate-400">Available</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded bg-amber-400 border border-amber-300"></div>
-                  <span className="text-amber-400 font-medium">Selected</span>
+                  <div className="w-4 h-4 rounded bg-white border border-white"></div>
+                  <span className="text-white font-medium">Selected</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded bg-slate-800/40 text-slate-600 border border-slate-800 flex items-center justify-center text-[9px]">
-                    ✕
+                  <div className="w-4 h-4 rounded bg-white/5 border border-white/10 flex items-center justify-center text-[9px]">
+                    ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢
                   </div>
                   <span className="text-slate-500">Occupied</span>
                 </div>
               </div>
 
               {/* Coach Floor Boundary */}
-              <div className="relative border-2 border-dashed border-slate-800 rounded-2xl p-4 bg-slate-900/60 max-w-[320px] mx-auto">
+              <div className="relative border-2 border-dashed border-white/15 rounded-2xl p-4 bg-slate-900/60 max-w-[320px] mx-auto">
                 {/* Windshield & Driver Section (Kenyan RHD: Steering Wheel on Right) */}
-                <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/15">
                   <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                     Entrance Door
                   </div>
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-slate-800/80 px-2.5 py-1 rounded-md">
+                  <div className="flex items-center gap-1 text-[11px] font-bold text-white bg-black/35 px-2.5 py-1 rounded-md">
                     <span>Driver Cabin</span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-white inline-block"></span>
                   </div>
                 </div>
 
@@ -223,13 +246,13 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                             onClick={() => handleSeatClick(seatA)}
                             className={`w-9 h-9 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
                               bookedSeatNumbers.has(seatA)
-                                ? 'bg-slate-800/40 text-slate-600 cursor-not-allowed border border-slate-800'
+                                ? 'bg-white/5 text-white/25 cursor-not-allowed border border-white/10'
                                 : selectedSeats.includes(seatA)
-                                ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/30 scale-105 font-extrabold'
-                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                                ? 'bg-white text-[#34398e] shadow-md shadow-black/25 scale-105 font-extrabold'
+                                : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatA) ? '✕' : seatA}
+                            {bookedSeatNumbers.has(seatA) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatA}
                           </button>
                         </div>
 
@@ -246,13 +269,13 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                             onClick={() => handleSeatClick(seatB)}
                             className={`w-9 h-9 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
                               bookedSeatNumbers.has(seatB)
-                                ? 'bg-slate-800/40 text-slate-600 cursor-not-allowed border border-slate-800'
+                                ? 'bg-white/5 text-white/25 cursor-not-allowed border border-white/10'
                                 : selectedSeats.includes(seatB)
-                                ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/30 scale-105 font-extrabold'
-                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                                ? 'bg-white text-[#34398e] shadow-md shadow-black/25 scale-105 font-extrabold'
+                                : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatB) ? '✕' : seatB}
+                            {bookedSeatNumbers.has(seatB) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatB}
                           </button>
 
                           <button
@@ -261,13 +284,13 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                             onClick={() => handleSeatClick(seatC)}
                             className={`w-9 h-9 rounded-lg text-xs font-mono font-bold transition-all flex items-center justify-center cursor-pointer ${
                               bookedSeatNumbers.has(seatC)
-                                ? 'bg-slate-800/40 text-slate-600 cursor-not-allowed border border-slate-800'
+                                ? 'bg-white/5 text-white/25 cursor-not-allowed border border-white/10'
                                 : selectedSeats.includes(seatC)
-                                ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/30 scale-105 font-extrabold'
-                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                                ? 'bg-white text-[#34398e] shadow-md shadow-black/25 scale-105 font-extrabold'
+                                : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatC) ? '✕' : seatC}
+                            {bookedSeatNumbers.has(seatC) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatC}
                           </button>
                         </div>
                       </div>
@@ -282,9 +305,9 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
             </div>
 
             {/* Selected seats tag list */}
-            <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+            <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-xs">
               <span className="text-slate-400">Chosen Seats:</span>
-              <span className="font-mono font-bold text-amber-400">
+              <span className="font-mono font-bold text-white">
                 {selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None selected'}
               </span>
             </div>
@@ -297,14 +320,14 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               {/* Boarding & Dropping Points */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-white" />
                     Pickup Terminal
                   </label>
                   <select
                     value={pickupPoint}
                     onChange={(e) => setPickupPoint(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15"
                   >
                     {bus.pickupPoints.map((pt) => (
                       <option key={pt} value={pt}>{pt}</option>
@@ -313,14 +336,14 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-white" />
                     Dropoff Terminal
                   </label>
                   <select
                     value={dropoffPoint}
                     onChange={(e) => setDropoffPoint(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-400"
+                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15"
                   >
                     {bus.dropoffPoints.map((pt) => (
                       <option key={pt} value={pt}>{pt}</option>
@@ -332,8 +355,8 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               {/* Passenger Inputs */}
               <div className="space-y-3 pt-2">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                    <User className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
+                    <User className="w-3.5 h-3.5 text-white" />
                     Full name
                   </label>
                   <input
@@ -341,13 +364,13 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                     value={passengerName}
                     onChange={(e) => setPassengerName(e.target.value)}
                     placeholder="e.g. Kennedy Mwangi Otieno"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
+                    <label className="text-xs font-semibold text-slate-600 flex items-center gap-1">
                       <Phone className="w-3.5 h-3.5 text-emerald-400" />
                       Phone number
                     </label>
@@ -356,52 +379,29 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                       value={passengerPhone}
                       onChange={(e) => setPassengerPhone(e.target.value)}
                       placeholder="0712 345 678"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400 font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                      National ID / Passport <span className="text-slate-500 font-normal">(optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={idNumber}
-                      onChange={(e) => setIdNumber(e.target.value)}
-                      placeholder="e.g. 29841203"
-                      className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
+                      className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15 font-mono"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-300">
-                    Email <span className="text-slate-500 font-normal">(optional)</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={passengerEmail}
-                    onChange={(e) => setPassengerEmail(e.target.value)}
-                    placeholder="e.g. passenger@gmail.com"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                  />
-                </div>
+                {/* National ID / Passport and Email are intentionally not asked
+                    for. Bookings are confirmed on WhatsApp; we only need enough
+                    to identify and reach the passenger. */}
               </div>
 
               {/* Price Calculation Box */}
-              <div className="bg-slate-950 rounded-2xl p-4 border border-slate-800 space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>Fare ({billableSeats} seat(s) × KSh {seatPrice.toLocaleString()})</span>
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>Fare ({billableSeats} seat(s) ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â KSh {seatPrice.toLocaleString()})</span>
                   <span className="font-mono">KSh {totalAmount.toLocaleString()}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>Passenger Service Charge & VAT</span>
-                  <span className="font-mono text-emerald-400">Included (KES 0.00)</span>
+                  <span className="font-mono text-emerald-600">Included (KES 0.00)</span>
                 </div>
-                <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">Total Payable</span>
-                  <span className="text-xl font-extrabold text-amber-400 font-mono">
+                <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Total Payable</span>
+                  <span className="text-xl font-extrabold text-[#34398e] font-mono">
                     KSh {totalAmount.toLocaleString()}
                   </span>
                 </div>
@@ -417,25 +417,19 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
             {/* DUAL CHECKOUT OPTIONS */}
             <div className="pt-4 space-y-2.5">
-              {/* Primary: reserve on WhatsApp — the desk confirms and takes payment */}
+              {/* Primary: reserve on WhatsApp ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the desk confirms and takes payment */}
               <button
                 type="button"
                 onClick={handleWhatsAppBookingDesk}
                 className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Reserve {billableSeats} seat — send to WhatsApp</span>
+                <span>Reserve {billableSeats} seat ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â send to WhatsApp</span>
               </button>
 
-              {/* Secondary: M-Pesa STK push */}
-              <button
-                type="button"
-                onClick={handleMpesaClick}
-                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <CreditCard className="w-3.5 h-3.5" />
-                <span>Or pay KSh {totalAmount.toLocaleString()} via M-PESA</span>
-              </button>
+              {/* M-Pesa STK push is intentionally not offered yet.
+                  Bookings are taken on WhatsApp for now; this button is
+                  re-enabled once the Daraja STK integration goes live. */}
             </div>
 
           </div>
