@@ -125,7 +125,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               {/* Rotated on phones so it reads as a vertical swap between the two
                   stacked city boxes, inline from tablets up. */}
-              <div className="col-span-2 lg:col-span-1 flex justify-center py-0.5">
+              <div className="sm:col-span-2 lg:col-span-1 flex justify-center py-0.5">
                 <button
                   type="button"
                   onClick={handleSwap}

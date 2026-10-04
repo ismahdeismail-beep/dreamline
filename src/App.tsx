@@ -119,9 +119,9 @@ export default function App() {
     });
     setSelectedRouteForWhatsApp({ from, to });
 
-    // Tapping a route should take the passenger straight to booking, so jump to
-    // the soonest departure on that corridor. Only fall back to the results list
-    // when no scheduled bus matches.
+    // Tapping a route always reaches the booking page: prefer the soonest bus on
+    // that corridor, then any departure to that destination, then any departure
+    // at all. Never dump the passenger back on the results list.
     const match = schedulesToRender.find(
       (s) => s.origin === from && s.destination === to
     ) ?? schedulesToRender.find((s) => s.destination === to);
@@ -131,10 +131,7 @@ export default function App() {
       return;
     }
 
-    const section = document.getElementById('search-results');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+    goToSoonestBooking();
   };
 
   const handleProceedToMpesa = (bookingData: typeof pendingMpesaData) => {

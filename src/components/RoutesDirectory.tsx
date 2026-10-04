@@ -37,7 +37,7 @@ export const RoutesDirectory: React.FC<RoutesDirectoryProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search town..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e]"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-base md:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e]"
             />
           </div>
         </div>
