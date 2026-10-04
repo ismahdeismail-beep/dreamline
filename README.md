@@ -57,9 +57,17 @@ Single page, scroll-based navigation via anchor targets:
 
 ## Coach photography
 
-Coach banner photos live in `COACH_IMAGES` in `src/data/dreamlineData.ts` and are looked
-up per coach type via `coachImageFor()`. The map is intentionally empty: candidate photos
-must clear the quality bar before being wired.
+Coach banner photos are attached per schedule via the `coachImage` field on each entry in
+`SCHEDULES` (`src/data/dreamlineData.ts`), with `coachImageFor()` as a fallback lookup by
+coach type. `CoachPhoto` degrades to a branded placeholder when no image is configured, so
+cards never render broken images.
+
+> **Licensing status: unresolved.** The 8 images currently in `public/coaches/` carry no
+> embedded source or licence metadata and are not hosted on the official site. Treat them
+> as unusable for public marketing until provenance is confirmed — see
+> [docs/PHOTO-LICENSING.md](docs/PHOTO-LICENSING.md).
+
+Candidate photos can be screened before being wired:
 
 ```bash
 powershell -ExecutionPolicy Bypass -File scripts/photo-quality-gate.ps1

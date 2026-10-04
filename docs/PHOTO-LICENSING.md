@@ -83,7 +83,44 @@ project's own README (line 75-76) sets the rule this breaks:
   (`royal-star-vip`, `executive-cruiser`, `highlands-vip`), so unlicensed imagery is on
   the most prominent surface of the site.
 
-## Recommendation (needs an owner decision — not actioned here)
+## Attempted provenance recovery (2026-10-04, session B)
+
+Every automated route to a source page was tried. **All failed**, which is itself the
+finding: the origin is not recoverable from available evidence.
+
+| Method | Result |
+|---|---|
+| Embedded XMP / IPTC / EXIF scan (raw-byte) | 0 of 8 carry source, creator, or licence |
+| Reconstruct Flickr CDN URL from filename tokens | `border-eagle` 403, `rift-express` **410 Gone**, `executive-cruiser` 403, `night-falcon` 403 |
+| Same, retried with browser UA + Referer | unchanged — bot policy, as commit `fc3a1a8` reported |
+| Flickr oEmbed metadata API (no key required) | 404 for all 4 IDs — no public metadata retrievable |
+| `dreamline.co.ke` asset probe | `/logo.png`, `/images/hero-1..3.jpg`, `/service-worker.js`, `/coaches/*` all **404** |
+| Official site crawl | homepage is an 11.9 KB single-pager; only 3 favicon/app-icon images; references bare `images.unsplash.com` (no photo URLs) and Lato webfont |
+
+Two details worth recording:
+
+- `rift-express.jpg` returns **410 Gone** — that exact Flickr object has been deleted.
+  Even the original host no longer serves it.
+- The `-1` suffixes in the staging filenames (`..._n-1.jpg`) are Chrome duplicate-download
+  markers, not part of the Flickr size token. Anyone re-running this should strip them or
+  they will get a false 404 and may wrongly conclude the ID was malformed.
+
+### Ruled out: "these are Dreamline's own photos"
+
+A plausible hypothesis was that `unused-photos/` had been scraped from the official site,
+which would make them first-party and safe. **Disproved:** the official site serves none of
+these assets. Its only images are three icons. The repo's `logo.png`,
+`images/hero-1..3.jpg`, and `service-worker.js` are likewise absent from the official
+domain, so they were not mirrored from it either.
+
+## Conclusion
+
+Provenance is **unresolved**, and the evidence points to third-party images of unknown and
+unverifiable licence. Per the repository's own rule in `README.md` ("Only third-party
+images with confirmed licensing should be added; record attribution alongside them"), these
+do not currently qualify for public use.
+
+
 
 1. **Resolve licensing before public marketing use.** For the 4 Wikimedia-named files,
    find the source page and record author + licence. For the 4 generic `images (N).jpg`,
