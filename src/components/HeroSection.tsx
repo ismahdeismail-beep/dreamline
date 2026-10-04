@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { MapPin, Calendar, Users, ArrowRightLeft, Search } from 'lucide-react';
 import { KENYAN_CITIES } from '../data/dreamlineData';
 
@@ -23,27 +23,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [travelDate, setTravelDate] = useState('2026-10-02');
   const [passengers, setPassengers] = useState(1);
 
-  // Background slideshow + a coach watermark, both decorative.
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const heroSlides = ['/coaches/royal-star-vip.jpg', '/coaches/executive-cruiser.jpg', '/coaches/highlands-vip.jpg'];
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setReducedMotion(mq.matches);
-    sync();
-    mq.addEventListener('change', sync);
-    return () => mq.removeEventListener('change', sync);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const id = window.setInterval(
-      () => setActiveSlide((i) => (i + 1) % heroSlides.length),
-      6000
-    );
-    return () => window.clearInterval(id);
-  }, [reducedMotion]);
+  // Background decoration. The former coach-photo slideshow was removed: every
+  // candidate image had unresolvable provenance (no embedded licence, not hosted
+  // on the official site), so publishing them was a licensing risk. Brand-only
+  // decoration keeps the hero intact without shipping unlicensed photography.
+  // See docs/PHOTO-LICENSING.md. Restoring photos later means re-adding a source
+  // here and setting `coachImage` on each schedule in src/data/dreamlineData.ts.
 
   const handleSwap = () => {
     setOrigin(destination);
@@ -68,21 +53,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
 <section className="relative bg-[#f9f8fc] pt-10 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Soft crossfading coach photos behind the hero. Decorative only, and it
-          stops entirely for visitors who ask for reduced motion. */}
+      {/* Soft brand-only backdrop. Decorative, non-interactive. */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        {heroSlides.map((src, i) => (
-          <img
-            key={src}
-            src={src}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-cover opacity-[0.07] blur-[2px] transition-opacity duration-[1600ms] ease-in-out"
-            style={{ opacity: i === activeSlide && !reducedMotion ? 0.11 : 0.05 }}
-          />
-        ))}
+        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-[#34398e]/[0.07] blur-3xl" />
+        <div className="absolute -bottom-32 -right-16 h-[26rem] w-[26rem] rounded-full bg-[#e52421]/[0.05] blur-3xl" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#f9f8fc] via-[#f9f8fc]/80 to-[#f9f8fc]" />
       </div>
 

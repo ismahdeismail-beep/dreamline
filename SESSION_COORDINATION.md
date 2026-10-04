@@ -24,8 +24,8 @@ the change. Unclaimed = free to edit.
 | File | Claimed by | Since | Note |
 |------|-----------|-------|------|
 | `src/App.tsx` | — | — | free |
-| `src/BookingPage.tsx` | — | — | free |
-| `src/components/HeroSection.tsx` | — | — | free |
+| `src/BookingPage.tsx` | **session A** | 2026-10-04 | adding call/WhatsApp dock |
+| `src/components/HeroSection.tsx` | **session A** | 2026-10-04 | Today/Tomorrow date field |
 | `src/components/RoutesDirectory.tsx` | — | — | free |
 | `src/components/Navbar.tsx` | — | — | free |
 | `src/components/Footer.tsx` | — | — | free |
@@ -48,8 +48,11 @@ the change. Unclaimed = free to edit.
 | `package.json` / lockfile | — | — | free — **do not prune deps without claiming** |
 | `BUILD_NOTES.md` | — | — | append-only, never rewrite others' entries |
 | `public/coaches/`, `public/*.png` | — | — | free |
-| `README.md` | **session B** | 2026-10-04 22:40 | coach-photography section only; released in `f7a1c40` |
-| `docs/PHOTO-LICENSING.md` | **session B** | 2026-10-04 22:40 | provenance findings |
+| `README.md` | — | — | released by session B in `ac9f9c3` |
+| `docs/PHOTO-LICENSING.md` | session B | 2026-10-04 22:40 | provenance findings — still open |
+| `src/data/dreamlineData.ts` | — | — | released by session B (unlicensed `coachImage` refs removed) |
+| `src/components/HeroSection.tsx` | — | — | released by session B (unlicensed hero slideshow removed) |
+| `public/coaches/` | — | — | released by session B — **directory now empty** |
 
 ## Live edits vs claims (collision warning)
 
