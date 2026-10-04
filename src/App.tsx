@@ -101,6 +101,15 @@ export default function App() {
     setIsWhatsAppHubOpen(true);
   };
 
+  // Any "Book" affordance that has no specific bus behind it lands on the soonest
+  // departure, so a tap always reaches the booking page.
+  const goToSoonestBooking = () => {
+    const soonest = schedulesToRender[0];
+    if (soonest) {
+      goToBooking(soonest.id);
+    }
+  };
+
   const handleQuickRouteSelect = (from: string, to: string) => {
     setSearchParams({
       origin: from,
@@ -197,6 +206,7 @@ export default function App() {
         onOpenManageTicket={() => setIsManageTicketOpen(true)}
         onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
         onNavigateSection={handleNavigateSection}
+        onBook={goToSoonestBooking}
       />
 
       <main className="flex-1">
@@ -209,7 +219,7 @@ export default function App() {
           />
         </div>
 
-        {/* 3. COACH BOARD Ã¢â‚¬â€ single canonical departure listing.
+        {/* 3. COACH BOARD — single canonical departure listing.
             `#search-results` is the scroll target for the hero search and the
             quick-route chips; the board itself keeps the `#next-buses` anchor
             used by the navbar. These used to be two separate coach lists
@@ -247,6 +257,7 @@ export default function App() {
         onOpenManageTicket={() => setIsManageTicketOpen(true)}
         onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
         onNavigateSection={handleNavigateSection}
+        onBook={goToSoonestBooking}
       />
 
       {/* 8. THE CORE WHATSAPP ADD-ON (Floating Button & Expandable Hub) */}

@@ -113,7 +113,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
   };
 
   const heading = searchSummary
-    ? `${searchSummary.origin} ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ ${searchSummary.destination}`
+    ? `${searchSummary.origin} → ${searchSummary.destination}`
     : 'Next buses';
   const subheading = searchSummary
     ? `${filtered.length} ${filtered.length === 1 ? 'departure' : 'departures'} matching your search`
@@ -124,7 +124,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-black tracking-widest uppercase text-emerald-600">ÃƒÂ¢Ã¢â‚¬â€Ã‚Â Live departures</p>
+            <p className="text-xs font-black tracking-widest uppercase text-emerald-600">● Live departures</p>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 mt-1">{heading}</h2>
             <p className="text-sm text-slate-500">{subheading}</p>
           </div>
@@ -142,7 +142,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
-                {c === 'All' ? 'All' : `ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ ${c}`}
+                {c === 'All' ? 'All' : `→ ${c}`}
               </button>
             ))}
           </div>
@@ -179,7 +179,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
           <div className="text-center py-12 px-6 bg-[#f9f8fc] border border-dashed border-slate-300 rounded-2xl">
             <p className="font-black text-slate-900">No departures match those filters</p>
             <p className="text-sm text-slate-500 mt-1">
-              Try another corridor or time of day ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â or ask us directly and we&apos;ll find you a seat.
+              Try another corridor or time of day — or ask us directly and we&apos;ll find you a seat.
             </p>
             <div className="mt-4 flex items-center justify-center gap-3">
               <button
@@ -210,7 +210,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                 <CoachPhoto
                   coachType={bus.coachType}
                   src={bus.coachImage ?? coachImageFor(bus.coachType)}
-                  alt={`${bus.coachName} ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â ${bus.coachType}`}
+                  alt={`${bus.coachName} — ${bus.coachType}`}
                   className="h-24 sm:h-28 w-full border-b border-slate-200"
                 />
                 <div className="p-5">
@@ -263,7 +263,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
           })}
           </div>
 
-          {/* Manual controls ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the row also advances on its own. */}
+          {/* Manual controls — the row also advances on its own. */}
           <div className="hidden sm:flex items-center justify-center gap-3 mt-3">
             <button
               type="button"
@@ -274,7 +274,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="text-[11px] font-bold text-slate-500">
-              Swipe or use the arrows ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the row moves on its own
+              Swipe or use the arrows — the row moves on its own
             </span>
             <button
               type="button"

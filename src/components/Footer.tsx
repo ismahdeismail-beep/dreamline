@@ -6,12 +6,14 @@ interface FooterProps {
   onOpenManageTicket: () => void;
   onOpenWhatsAppHub: (msg?: string) => void;
   onNavigateSection: (sectionId: string) => void;
+  onBook: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenManageTicket,
   onOpenWhatsAppHub,
-  onNavigateSection
+  onNavigateSection,
+  onBook
 }) => {
   const directWhatsApp = buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, 'Habari Dreamline! General assistance please.');
 
@@ -33,7 +35,8 @@ export const Footer: React.FC<FooterProps> = ({
         <div>
           <h4 className="font-black text-white text-xs uppercase tracking-wider mb-3">Book</h4>
           <ul className="space-y-2 text-xs">
-            <li><button onClick={() => onNavigateSection('hero')} className="hover:text-white">Search buses</button></li>
+            <li><button onClick={onBook} className="hover:text-white font-bold">Book a seat</button></li>
+            <li><button onClick={onBook} className="hover:text-white">Search buses</button></li>
             <li><button onClick={() => onNavigateSection('next-buses')} className="hover:text-white">Next departures</button></li>
             <li><button onClick={() => onNavigateSection('routes')} className="hover:text-white">Routes & fares</button></li>
             <li><button onClick={onOpenManageTicket} className="hover:text-white font-bold">My ticket</button></li>
@@ -55,7 +58,6 @@ export const Footer: React.FC<FooterProps> = ({
           <ul className="space-y-2 text-xs text-white/60">
             <li>River Road Terminal, Nairobi</li>
             <li><a href={TEL_LINK} className="hover:text-white">{DISPLAY_WHATSAPP_NUMBER}</a></li>
-            <li><a href="mailto:info@dreamline.co.ke" className="hover:text-white">info@dreamline.co.ke</a></li>
             <li>
               <a href={`${buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, 'Habari Dreamline! I would like to make a booking.')}`}
                  target="_blank" rel="noopener noreferrer" className="hover:text-white">

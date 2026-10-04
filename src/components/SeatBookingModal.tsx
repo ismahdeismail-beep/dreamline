@@ -107,7 +107,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
       seats: selectedSeats,
       passengerName,
       passengerPhone,
-      passengerEmail: passengerEmail || `${passengerPhone}@dreamline.customer`,
+      passengerEmail: '',
       idNumber,
       pickupPoint,
       dropoffPoint,
@@ -150,7 +150,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                {bus.origin} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ {bus.destination} ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ {bus.departureTime} ({bus.departureDate})
+                {bus.origin} → {bus.destination} • {bus.departureTime} ({bus.departureDate})
               </p>
             </div>
           </div>
@@ -168,7 +168,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
         <div className="p-5 sm:p-7 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
           
           {/* Seats are optional, so on small screens the seat map stays collapsed by
-              default ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â otherwise it alone is taller than the whole modal and the
+              default — otherwise it alone is taller than the whole modal and the
               user must scroll ~850px just to reach the form. Always shown on lg+. */}
             <button
               type="button"
@@ -210,7 +210,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-4 h-4 rounded bg-white/5 border border-white/10 flex items-center justify-center text-[9px]">
-                    ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢
+                    ✕
                   </div>
                   <span className="text-slate-500">Occupied</span>
                 </div>
@@ -252,7 +252,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                                 : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatA) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatA}
+                            {bookedSeatNumbers.has(seatA) ? '✕' : seatA}
                           </button>
                         </div>
 
@@ -275,7 +275,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                                 : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatB) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatB}
+                            {bookedSeatNumbers.has(seatB) ? '✕' : seatB}
                           </button>
 
                           <button
@@ -290,7 +290,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
                                 : 'bg-white/25 hover:bg-white/40 text-white border border-white/60'
                             }`}
                           >
-                            {bookedSeatNumbers.has(seatC) ? 'ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢' : seatC}
+                            {bookedSeatNumbers.has(seatC) ? '✕' : seatC}
                           </button>
                         </div>
                       </div>
@@ -392,7 +392,7 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
               {/* Price Calculation Box */}
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2">
                 <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>Fare ({billableSeats} seat(s) ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â KSh {seatPrice.toLocaleString()})</span>
+                  <span>Fare ({billableSeats} seat(s) × KSh {seatPrice.toLocaleString()})</span>
                   <span className="font-mono">KSh {totalAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-500">
@@ -417,14 +417,14 @@ export const SeatBookingModal: React.FC<SeatBookingModalProps> = ({
 
             {/* DUAL CHECKOUT OPTIONS */}
             <div className="pt-4 space-y-2.5">
-              {/* Primary: reserve on WhatsApp ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â the desk confirms and takes payment */}
+              {/* Primary: reserve on WhatsApp — the desk confirms and takes payment */}
               <button
                 type="button"
                 onClick={handleWhatsAppBookingDesk}
                 className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Reserve {billableSeats} seat ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â send to WhatsApp</span>
+                <span>Reserve {billableSeats} seat — send to WhatsApp</span>
               </button>
 
               {/* M-Pesa STK push is intentionally not offered yet.

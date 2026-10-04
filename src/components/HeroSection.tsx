@@ -62,8 +62,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     { from: 'Nairobi', to: 'Kisii' },
   ];
 
+  // 16px on phones: anything smaller makes iOS Safari zoom the page on focus.
   const selectCls =
-    'w-full bg-white border border-slate-300 rounded-xl py-3 px-3.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer';
+    'w-full bg-white border border-slate-300 rounded-xl py-3 px-3.5 text-base sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer';
 
   return (
 <section className="relative bg-[#f9f8fc] pt-10 pb-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -99,8 +100,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* Search card */}
         <div className="mt-8 bg-white border border-slate-200 rounded-2xl shadow-lg shadow-[#34398e]/5 p-5 sm:p-6">
           <form onSubmit={handleSearchSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-11 gap-3 items-end">
-              <div className="md:col-span-3 space-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-11 gap-3 items-end">
+              <div className="sm:col-span-1 lg:col-span-3 space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[#34398e]" /> From
                 </label>
@@ -111,18 +112,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 </select>
               </div>
 
-              <div className="md:col-span-1 flex justify-center pb-0.5">
-                <button
-                  type="button"
-                  onClick={handleSwap}
-                  className="w-10 h-10 rounded-xl bg-[#34398e]/5 hover:bg-[#34398e]/10 text-[#34398e] flex items-center justify-center border border-[#34398e]/20 transition-colors cursor-pointer"
-                  aria-label="Swap cities"
-                >
-                  <ArrowRightLeft className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="md:col-span-3 space-y-1.5">
+              <div className="sm:col-span-1 lg:col-span-3 space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-[#34398e]" /> To
                 </label>
@@ -133,7 +123,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 </select>
               </div>
 
-              <div className="md:col-span-2 space-y-1.5">
+              {/* Rotated on phones so it reads as a vertical swap between the two
+                  stacked city boxes, inline from tablets up. */}
+              <div className="col-span-2 lg:col-span-1 flex justify-center py-0.5">
+                <button
+                  type="button"
+                  onClick={handleSwap}
+                  className="w-10 h-10 rounded-xl bg-[#34398e]/5 hover:bg-[#34398e]/10 text-[#34398e] flex items-center justify-center border border-[#34398e]/20 transition-colors cursor-pointer"
+                  aria-label="Swap cities"
+                >
+                  <ArrowRightLeft className="w-4 h-4 rotate-90 lg:rotate-0" />
+                </button>
+              </div>
+
+              <div className="sm:col-span-1 lg:col-span-2 space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-[#34398e]" /> Date
                 </label>
@@ -142,11 +145,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   value={travelDate}
                   min="2026-10-01"
                   onChange={(e) => setTravelDate(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-xl py-2.5 px-3.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer"
+                  className="w-full bg-white border border-slate-300 rounded-xl py-3 sm:py-2.5 px-3.5 text-base sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer"
                 />
               </div>
 
-              <div className="md:col-span-2 space-y-1.5">
+              <div className="sm:col-span-1 lg:col-span-2 space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Users className="w-3.5 h-3.5 text-[#34398e]" /> Seats
                 </label>

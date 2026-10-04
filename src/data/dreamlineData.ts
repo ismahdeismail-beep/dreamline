@@ -120,7 +120,7 @@ export const TEL_LINK = `tel:+${DEFAULT_WHATSAPP_NUMBER}`;
  * Coach photography keyed by coach type.
  *
  * Set these to your own licensed product shots before going live. The photos
- * referenced here must be ones Dreamline has the right to publish ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â the three
+ * referenced here must be ones Dreamline has the right to publish — the three
  * Wikimedia Commons files considered during prototyping were rejected because
  * Wikimedia's robot policy forbids automated download of their media, and the
  * CC BY / CC BY-SA licences would additionally require visible attribution.

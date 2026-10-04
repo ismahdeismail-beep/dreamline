@@ -7,12 +7,14 @@ interface NavbarProps {
   onOpenManageTicket: () => void;
   onOpenWhatsAppHub: (defaultMsg?: string) => void;
   onNavigateSection: (sectionId: string) => void;
+  onBook: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenManageTicket,
   onOpenWhatsAppHub,
-  onNavigateSection
+  onNavigateSection,
+  onBook
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -35,7 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-slate-700">
-            <button onClick={() => handleNavClick('hero')} className="hover:text-[#34398e] transition-colors cursor-pointer">Book</button>
+            <button onClick={() => { setMobileMenuOpen(false); onBook(); }} className="hover:text-[#34398e] transition-colors cursor-pointer">Book</button>
             <button onClick={() => handleNavClick('next-buses')} className="hover:text-[#34398e] transition-colors cursor-pointer flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               Next Buses
@@ -47,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="hidden sm:flex items-center gap-2.5">
             {/* Polymorphic Button renders an <a> for tel: links, a <button> for
-                actions, and a <Link> when `as={Link}` Ã¢â‚¬â€ one visual language. */}
+                actions, and a <Link> when `as={Link}` — one visual language. */}
             <Button as="a" href={TEL_LINK} variant="subtle" size="sm">
               <Phone className="w-3.5 h-3.5" />
               Call
@@ -81,7 +83,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-white/60 bg-white/80 backdrop-blur-xl px-4 pt-3 pb-5 space-y-1 text-sm font-bold text-slate-700">
           {[
-            ['hero', 'Book'],
             ['next-buses', 'Next Buses'],
             ['routes', 'Routes & Fares'],
             ['fleet', 'Fleet'],
@@ -91,6 +92,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               {label}
             </button>
           ))}
+          <button onClick={() => { setMobileMenuOpen(false); onBook(); }} className="block w-full text-left py-2 px-3 rounded-md bg-[#34398e] text-white hover:bg-[#2a2e73] transition-colors mt-1">
+            Book a Seat
+          </button>
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2">
             <Button as="a" href={TEL_LINK} variant="subtle" fullWidth>
               <Phone className="w-3.5 h-3.5" /> Call {DISPLAY_WHATSAPP_NUMBER}
