@@ -34,15 +34,18 @@ Emerald/WhatsApp green is deliberately reserved for WhatsApp affordances.
 
 ## Page structure
 
-Single page, scroll-based navigation via anchor targets:
+Single page, scroll-based navigation via anchor targets, plus a standalone booking route:
 
-1. **Hero** — route search form, quick-route chips, amenity highlights
+1. **Hero** — route search form (Today/Tomorrow/In 2 days/Next week), quick-route chips, amenity highlights
 2. **Coach board** (`#next-buses`, wrapped by `#search-results`) — the single canonical
    departure listing, filtered by corridor and time of day
 3. **Routes & fares directory** (`#routes`)
 4. **Fleet & safety** (`#fleet`)
 5. **Offices / terminals** (`#offices`)
 6. Footer, floating WhatsApp hub, and modals (seat booking, M-PESA, ticket view, manage ticket)
+7. **Booking page** (`/book/:busId`) — standalone route with trip summary, minimal booking form
+   (name, phone, pickup, drop-off, optional seat), inline Call/WhatsApp desk buttons, and a
+   floating dock that auto-hides on scroll/focus and yields to the submit CTA
 
 ## Key components
 
@@ -54,6 +57,7 @@ Single page, scroll-based navigation via anchor targets:
 | `FleetAndSafety` | Coach classes and safety protocols |
 | `SeatBookingModal` | Seat selection → WhatsApp handoff |
 | `WhatsAppAddOn` | Floating button + expandable enquiry hub |
+| `BookingPage` | Standalone `/book/:busId` route — trip summary, minimal form, inline + floating desk access |
 
 ## Coach photography
 

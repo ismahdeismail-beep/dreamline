@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, CheckCircle2, Clock, CreditCard, MessageCircle, MapPin, PhoneCall } from 'lucide-react';
 import {
   BusSchedule,
   coachImageFor,
   buildWhatsAppLink,
   DEFAULT_WHATSAPP_NUMBER,
+  DISPLAY_WHATSAPP_NUMBER,
   TEL_LINK,
 } from './data/dreamlineData';
 import { CoachPhoto } from './components/CoachPhoto';
@@ -27,12 +28,53 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
   const [seat, setSeat] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  // The dock floats over a long form on a phone, so it must get out of the way
+  // while the passenger is scrolling or typing and return once they pause.
+  const [dockIdle, setDockIdle] = useState(true);
+  // ...and it must never sit on top of the primary CTA, which is full width and
+  // therefore always crosses the bottom-right corner the dock occupies.
+  const [submitVisible, setSubmitVisible] = useState(false);
 
   // A short, readable seat range beats a full interactive map on a phone.
   const seatOptions = useMemo(() => {
     if (!bus) return [];
     return Array.from({ length: Math.min(24, Math.max(6, bus.totalSeats - 6)) }, (_, i) => `${i + 1}A`);
   }, [bus]);
+
+  useEffect(() => {
+    const submit = document.querySelector('form button[type="submit"]');
+    if (!submit || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([entry]) => setSubmitVisible(entry.isIntersecting), {
+      threshold: 0.01,
+    });
+    io.observe(submit);
+    return () => io.disconnect();
+  }, [bus]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const wake = () => {
+      setDockIdle(false);
+      clearTimeout(timer);
+      timer = setTimeout(() => setDockIdle(true), 1100);
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      if ((e.target as HTMLElement)?.matches?.('input, select, textarea')) setDockIdle(false);
+    };
+    const onFocusOut = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => setDockIdle(true), 900);
+    };
+    window.addEventListener('scroll', wake, { passive: true });
+    document.addEventListener('focusin', onFocusIn);
+    document.addEventListener('focusout', onFocusOut);
+    return () => {
+      window.removeEventListener('scroll', wake);
+      document.removeEventListener('focusin', onFocusIn);
+      document.removeEventListener('focusout', onFocusOut);
+      clearTimeout(timer);
+    };
+  }, []);
 
   if (!bus) {
     return (
@@ -86,7 +128,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#f7f6fc] via-white to-[#f7f6fc]">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 pb-24 sm:pb-6 space-y-4">
         <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-600 hover:text-[#34398e] cursor-pointer">
           <ArrowLeft className="w-4 h-4" /> All departures
         </button>
@@ -189,6 +231,29 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
 
             {error && <p className="text-xs font-bold text-[#e52421]">{error}</p>}
 
+            {/* Inline desk access. The floating dock is quicker, but it yields to
+                scroll/focus and sits bottom-right, so this stays the guaranteed
+                way to reach a human without any overlay in the way. */}
+            <div className="flex items-stretch gap-2">
+              <a
+                href={TEL_LINK}
+                className="flex-1 min-h-11 py-2.5 px-3 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 flex items-center justify-center gap-1.5 hover:border-[#34398e] hover:text-[#34398e]"
+              >
+                <PhoneCall className="w-4 h-4 shrink-0" aria-hidden="true" /> Call desk
+              </a>
+              <a
+                href={buildWhatsAppLink(
+                  DEFAULT_WHATSAPP_NUMBER,
+                  `Habari Dreamline! I'd like help booking a seat on the ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination}.`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 min-h-11 py-2.5 px-3 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 flex items-center justify-center gap-1.5 hover:border-[#25D366] hover:text-[#128C4A]"
+              >
+                <MessageCircle className="w-4 h-4 shrink-0" aria-hidden="true" /> WhatsApp desk
+              </a>
+            </div>
+
             <button type="submit" className="w-full py-3 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
               <MessageCircle className="w-4 h-4 fill-white" /> Confirm on WhatsApp
             </button>
@@ -202,6 +267,36 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
             </button>
           </form>
         )}
+      </div>
+
+      {/* The landing page has a floating call/WhatsApp dock; the booking page is a
+          standalone route, so it needs its own or the desk is unreachable while
+          someone is mid-form. */}
+      <div
+        data-testid="booking-dock"
+        className={`fixed bottom-5 right-5 z-50 flex flex-col gap-3 print:hidden transition-all duration-300 ${
+          dockIdle && !submitVisible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-3 pointer-events-none'
+        }`}
+      >
+        <a
+          href={TEL_LINK}
+          aria-label={`Call the desk on ${DISPLAY_WHATSAPP_NUMBER}`}
+          className="w-14 h-14 rounded-full bg-[#34398e]/85 backdrop-blur-xl text-white flex items-center justify-center shadow-xl shadow-indigo-950/30 hover:bg-[#34398e] hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#34398e]/30 border border-white/25"
+        >
+          <PhoneCall className="w-6 h-6" aria-hidden="true" />
+        </a>
+        <a
+          href={buildWhatsAppLink(
+            DEFAULT_WHATSAPP_NUMBER,
+            `Habari Dreamline! I'd like to book a seat on the ${bus.coachName} (${bus.busNumber}) from ${bus.origin} to ${bus.destination}.`
+          )}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open WhatsApp desk"
+          className="w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-xl shadow-emerald-950/40 hover:bg-[#20ba59] hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-400/40"
+        >
+          <MessageCircle className="w-7 h-7 fill-white" aria-hidden="true" />
+        </a>
       </div>
     </main>
   );

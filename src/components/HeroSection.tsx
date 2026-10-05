@@ -14,14 +14,37 @@ const BENEFITS = [
   { img: '/amenities/power.png', title: 'Power Onboard', desc: 'USB at every seat' },
 ];
 
+/** Local calendar date as YYYY-MM-DD (avoids UTC off-by-one from toISOString). */
+const isoDate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+const addDays = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+
+/**
+ * Most passengers travel today or tomorrow. Presenting those as plain labels is
+ * far simpler on a phone than a native date picker, and it removes the stale
+ * hardcoded `min` date that silently allowed past departures. The real date is
+ * still carried in the value, so downstream filtering is unchanged.
+ */
+const buildDateOptions = (now: Date) => [
+  { value: isoDate(now), label: 'Today' },
+  { value: isoDate(addDays(now, 1)), label: 'Tomorrow' },
+  { value: isoDate(addDays(now, 2)), label: 'In 2 days' },
+  { value: isoDate(addDays(now, 7)), label: 'Next week' },
+];
+
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onSearch,
   onSelectRouteQuick
 }) => {
   const [origin, setOrigin] = useState('Nairobi');
   const [destination, setDestination] = useState('Mombasa');
-  const [travelDate, setTravelDate] = useState('2026-10-02');
+  // Computed on mount rather than hardcoded, so the field can never offer a date
+  // in the past and never defaults to a day that has already gone.
+  const [today] = useState(() => isoDate(new Date()));
+  const [travelDate, setTravelDate] = useState(() => isoDate(new Date()));
   const [passengers, setPassengers] = useState(1);
+  const travelDateOptions = buildDateOptions(new Date(`${today}T00:00:00`));
 
   // Background decoration. The former coach-photo slideshow was removed: every
   // candidate image had unresolvable provenance (no embedded licence, not hosted
@@ -114,13 +137,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-[#34398e]" /> Date
                 </label>
-                <input
-                  type="date"
+                <select
                   value={travelDate}
-                  min="2026-10-01"
                   onChange={(e) => setTravelDate(e.target.value)}
                   className="w-full bg-white border border-slate-300 rounded-xl py-3 sm:py-2.5 px-3.5 text-base sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/20 cursor-pointer"
-                />
+                >
+                  {travelDateOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="sm:col-span-1 lg:col-span-2 space-y-1.5">

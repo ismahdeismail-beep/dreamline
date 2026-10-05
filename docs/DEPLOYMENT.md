@@ -95,3 +95,4 @@ The repo is `ismahdeismail-beep/dreamline` (public).
 5. Smoke-test: search a route → coach board filters to the matching corridor → select seat → "Continue on WhatsApp" opens `wa.me/254788256042` (local format `0788256042`)
 6. Verify no horizontal overflow at 390 px and zero console errors
 7. Confirm the service worker registered and `/logo.png` resolves in the deployed build
+8. Verify `/book/sch-001` deep link renders the booking page (trip summary, form, inline + floating desk buttons)

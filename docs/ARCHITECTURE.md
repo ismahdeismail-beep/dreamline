@@ -26,7 +26,7 @@ Dreamline is a **single-page React application with no backend**. All domain dat
 | Styling | Tailwind CSS 4 — **plugin-only config**, no `tailwind.config.js` / `postcss.config.js` |
 | Icons | lucide-react (tree-shaken named imports) |
 | State | Local component state only; no Redux/Zustand/Context yet |
-| Routing | None — single page with `scrollIntoView` section navigation |
+| Routing | Custom `window.history.pushState` + pathname matching (no React Router); `vercel.json` SPA rewrite for `/book/:busId` deep links |
 
 ## State ownership (`src/App.tsx`)
 
