@@ -1,33 +1,65 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CheckCircle2, Clock, CreditCard, MessageCircle, MapPin, PhoneCall } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, CreditCard, MessageCircle, MapPin, PhoneCall, Armchair } from 'lucide-react';
 import {
   BusSchedule,
-  coachImageFor,
+  bookedSeatsFor,
+  seatCodesFor,
   buildWhatsAppLink,
   DEFAULT_WHATSAPP_NUMBER,
   DISPLAY_WHATSAPP_NUMBER,
   TEL_LINK,
 } from './data/dreamlineData';
 import { CoachPhoto } from './components/CoachPhoto';
+import { SeatMapModal } from './components/SeatMapModal';
+
+/** Shape handed to App when the passenger chooses M-PESA instead of WhatsApp. */
+export interface MpesaCheckout {
+  bus: BusSchedule;
+  seats: string[];
+  passengerName: string;
+  passengerPhone: string;
+  passengerEmail: string;
+  idNumber: string;
+  pickupPoint: string;
+  dropoffPoint: string;
+  totalAmount: number;
+}
 
 interface BookingPageProps {
   bus: BusSchedule | null;
   onBack: () => void;
+  /** Seats already sold on this departure plus any held by local tickets. */
+  extraBookedSeats?: string[];
+  /** True once `/api/mpesa` reports real Daraja credentials are configured. */
+  mpesaEnabled?: boolean;
+  onPayWithMpesa: (checkout: MpesaCheckout) => void;
+  /** Ticket id of a payment completed on this page, to show the paid state. */
+  paidTicketId?: string | null;
 }
 
 /**
  * Standalone booking page reached at /book/:busId. It deliberately asks for the
  * minimum needed to reserve and reach the passenger: name, phone and (optionally)
- * a seat. Payment stays on M-PESA STK push once it goes live.
+ * a seat. Payment runs through M-PESA STK push when Daraja is configured, and
+ * falls back to the WhatsApp desk until then.
  */
-export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
+export const BookingPage: React.FC<BookingPageProps> = ({
+  bus,
+  onBack,
+  extraBookedSeats,
+  mpesaEnabled = false,
+  onPayWithMpesa,
+  paidTicketId = null,
+}) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [pickup, setPickup] = useState(bus?.pickupPoints?.[0] ?? 'Main Terminal');
   const [dropoff, setDropoff] = useState(bus?.dropoffPoints?.[0] ?? 'Main Stage');
-  const [seat, setSeat] = useState('');
+  const [seats, setSeats] = useState<string[]>([]);
+  const [mapOpen, setMapOpen] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [paid, setPaid] = useState(false);
   // The dock floats over a long form on a phone, so it must get out of the way
   // while the passenger is scrolling or typing and return once they pause.
   const [dockIdle, setDockIdle] = useState(true);
@@ -35,11 +67,34 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
   // therefore always crosses the bottom-right corner the dock occupies.
   const [submitVisible, setSubmitVisible] = useState(false);
 
-  // A short, readable seat range beats a full interactive map on a phone.
-  const seatOptions = useMemo(() => {
+  // Seats this passenger can actually pick: the schedule's inventory minus
+  // everything already sold or held by a ticket booked on this device.
+  const availableSeats = useMemo(() => {
     if (!bus) return [];
-    return Array.from({ length: Math.min(24, Math.max(6, bus.totalSeats - 6)) }, (_, i) => `${i + 1}A`);
-  }, [bus]);
+    const booked = bookedSeatsFor(bus, extraBookedSeats);
+    return seatCodesFor(bus).filter((code) => !booked.has(code));
+  }, [bus, extraBookedSeats]);
+
+  const freeSeatCount = useMemo(() => {
+    if (!bus) return 0;
+    return bus.totalSeats - bookedSeatsFor(bus, extraBookedSeats).size;
+  }, [bus, extraBookedSeats]);
+
+  // A short, readable chip row beats 30+ buttons on a phone; the seat map has
+  // the whole coach. Anything already chosen always stays visible.
+  const seatChipCodes = useMemo(() => {
+    const chips = availableSeats.slice(0, 8);
+    for (const code of seats) {
+      if (!chips.includes(code)) chips.push(code);
+    }
+    return chips;
+  }, [availableSeats, seats]);
+
+  // Payment completed on this page → the ticket view opens over the form, and
+  // once it is dismissed the passenger lands on the paid confirmation.
+  useEffect(() => {
+    if (paidTicketId) setPaid(true);
+  }, [paidTicketId]);
 
   useEffect(() => {
     const submit = document.querySelector('form button[type="submit"]');
@@ -95,14 +150,28 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
     );
   }
 
-  const seats = seat ? [seat] : [];
-  const total = seats.length * bus.regularPrice;
+  const seatPrice = bus.coachType.includes('VIP') ? bus.vipPrice : bus.regularPrice;
+  // No seat chosen still quotes one: the desk assigns it on confirmation, so
+  // nobody is blocked from booking.
+  const billableSeats = Math.max(seats.length, 1);
+  const total = billableSeats * seatPrice;
+
+  const validatePassenger = () => {
+    if (name.trim().length < 2) {
+      setError('Please enter your full name.');
+      return false;
+    }
+    if (phone.replace(/\D/g, '').length < 9) {
+      setError('Please enter a valid phone number.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name.trim().length < 2) return setError('Please enter your full name.');
-    if (phone.replace(/\D/g, '').length < 9) return setError('Please enter a valid phone number.');
-    setError('');
+    if (!validatePassenger()) return;
 
     const lines = [
       `Hi Dreamline, I'd like to book a seat.`,
@@ -114,13 +183,28 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
       `Departs: ${bus.departureTime} (arrives ${bus.arrivalTime})`,
       `Pickup: ${pickup}`,
       `Drop-off: ${dropoff}`,
-      seat ? `Seat: ${seat}` : `Seat: Any available`,
+      seats.length ? `Seat: ${seats.join(', ')}` : `Seat: Any available`,
       `Fare: KSh ${total.toLocaleString()}`,
       ``,
       `Please confirm availability. Thank you.`,
     ];
     window.open(buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, lines.join('\n')), '_blank', 'noopener');
     setSent(true);
+  };
+
+  const startMpesa = () => {
+    if (!validatePassenger()) return;
+    onPayWithMpesa({
+      bus,
+      seats,
+      passengerName: name.trim(),
+      passengerPhone: phone.trim(),
+      passengerEmail: '',
+      idNumber: '',
+      pickupPoint: pickup,
+      dropoffPoint: dropoff,
+      totalAmount: total,
+    });
   };
 
   const field =
@@ -137,7 +221,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
         <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-3xl overflow-hidden shadow-sm">
           <CoachPhoto
             coachType={bus.coachType}
-            src={bus.coachImage ?? coachImageFor(bus.coachType)}
+            src={bus.coachImage}
             alt={`${bus.coachName} — ${bus.coachType}`}
             className="h-32 w-full"
           />
@@ -164,12 +248,16 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
           </div>
         </div>
 
-        {sent ? (
+        {paid || sent ? (
           <div className="bg-white border border-slate-200 rounded-3xl p-8 text-center">
             <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
-            <h2 className="text-lg font-black text-slate-900 mt-3">Request sent</h2>
+            <h2 className="text-lg font-black text-slate-900 mt-3">
+              {paid ? 'Payment received' : 'Request sent'}
+            </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Your details opened in WhatsApp. Our desk will confirm your seat shortly.
+              {paid
+                ? 'Safaricom confirmed your M-PESA payment. Your e-Ticket and boarding pass are ready above.'
+                : 'Your details opened in WhatsApp. Our desk will confirm your seat shortly.'}
             </p>
             <button onClick={onBack} className="mt-5 px-5 py-2.5 rounded-xl bg-[#34398e] text-white text-sm font-bold cursor-pointer">
               Book another trip
@@ -205,27 +293,58 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-600">Seat <span className="font-normal text-slate-400">(optional)</span></label>
-              <div className="flex flex-wrap gap-1.5">
-                {seatOptions.map((s) => (
+              <label className="text-xs font-bold text-slate-600">
+                Seat <span className="font-normal text-slate-400">(optional)</span>
+                <span className="ml-2 font-mono text-[#34398e]">{freeSeatCount} free</span>
+              </label>
+
+              {availableSeats.length === 0 ? (
+                <p className="text-xs font-bold text-[#e52421]">
+                  This coach is full online — call the desk and we&apos;ll try to release a seat.
+                </p>
+              ) : (
+                <>
+                  <div className="flex flex-wrap gap-1.5">
+                    {seatChipCodes.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() =>
+                          setSeats((cur) =>
+                            cur.includes(s) ? cur.filter((code) => code !== s) : [...cur, s]
+                          )
+                        }
+                        className={`w-11 h-9 rounded-lg text-xs font-bold font-mono transition-colors cursor-pointer border ${
+                          seats.includes(s)
+                            ? 'bg-[#34398e] text-white border-[#34398e]'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-[#34398e]'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+
                   <button
-                    key={s}
                     type="button"
-                    onClick={() => setSeat((cur) => (cur === s ? '' : s))}
-                    className={`w-11 h-9 rounded-lg text-xs font-bold font-mono transition-colors cursor-pointer border ${
-                      seat === s
-                        ? 'bg-[#34398e] text-white border-[#34398e]'
-                        : 'bg-white text-slate-600 border-slate-300 hover:border-[#34398e]'
-                    }`}
+                    onClick={() => setMapOpen(true)}
+                    className="mt-2 w-full py-2.5 rounded-xl border border-[#34398e]/30 bg-[#34398e]/5 text-xs font-bold text-[#34398e] flex items-center justify-center gap-2 cursor-pointer hover:bg-[#34398e]/10"
                   >
-                    {s}
+                    <Armchair className="w-4 h-4" />
+                    Open full seat map
+                    {seats.length > 0 ? ` (${seats.length} selected)` : ''}
                   </button>
-                ))}
-              </div>
+                </>
+              )}
             </div>
 
             <div className="flex items-center justify-between bg-[#f9f8fc] rounded-2xl border border-slate-200 p-4">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</span>
+              <div>
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total</span>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  {billableSeats} × KSh {seatPrice.toLocaleString()}
+                </p>
+              </div>
               <span className="text-xl font-black text-[#34398e]">KSh {total.toLocaleString()}</span>
             </div>
 
@@ -258,16 +377,42 @@ export const BookingPage: React.FC<BookingPageProps> = ({ bus, onBack }) => {
               <MessageCircle className="w-4 h-4 fill-white" /> Confirm on WhatsApp
             </button>
 
-            <button
-              type="button"
-              disabled
-              className="w-full py-3 rounded-2xl bg-slate-100 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <CreditCard className="w-4 h-4" /> Pay with M-PESA (STK) — coming soon
-            </button>
+            {/* M-PESA STK stays disabled until the Daraja credentials are
+                configured server-side; probe state arrives as `mpesaEnabled`. */}
+            {mpesaEnabled ? (
+              <button
+                type="button"
+                onClick={startMpesa}
+                className="w-full py-3 rounded-2xl bg-[#008000] hover:bg-[#007000] text-white text-sm font-bold cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-emerald-800/20"
+              >
+                <CreditCard className="w-4 h-4" /> Pay {total.toLocaleString()} with M-PESA
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full py-3 rounded-2xl bg-slate-100 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" /> Pay with M-PESA (STK) — coming soon
+              </button>
+            )}
           </form>
         )}
       </div>
+
+      {/* Full seat map — same inventory as the chips, just laid out like the coach. */}
+      {mapOpen && (
+        <SeatMapModal
+          bus={bus}
+          extraBookedSeats={extraBookedSeats}
+          selectedSeats={seats}
+          onApply={(next) => {
+            setSeats(next);
+            setMapOpen(false);
+          }}
+          onClose={() => setMapOpen(false)}
+        />
+      )}
 
       {/* The landing page has a floating call/WhatsApp dock; the booking page is a
           standalone route, so it needs its own or the desk is unreachable while

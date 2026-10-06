@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { NextBusesBoard } from './components/NextBusesBoard';
@@ -7,18 +7,17 @@ import { FleetAndSafety } from './components/FleetAndSafety';
 import { OfficeContacts } from './components/OfficeContacts';
 import { Footer } from './components/Footer';
 import { WhatsAppAddOn } from './components/WhatsAppAddOn';
-import { SeatBookingModal } from './components/SeatBookingModal';
 import { MpesaModal } from './components/MpesaModal';
 import { TicketModal } from './components/TicketModal';
 import { ManageTicketModal } from './components/ManageTicketModal';
 
 import {
   SAMPLE_SCHEDULES,
-  BusSchedule,
   BookingTicket,
   DEMO_TICKETS,
 } from './data/dreamlineData';
-import { BookingPage } from './BookingPage';
+import { loadTickets, saveTickets } from './lib/ticketStore';
+import { BookingPage, type MpesaCheckout } from './BookingPage';
 
 export default function App() {
   // Dedicated booking page at /book/:busId. Kept as a tiny path check so the
@@ -34,11 +33,17 @@ export default function App() {
     const next = '/book/' + encodeURIComponent(busId);
     window.history.pushState({}, '', next);
     setPath(next);
+    // Starting a fresh booking must not inherit the previous payment's
+    // confirmation — the new page mounts with a clean form.
+    setPaidTicketId(null);
     window.scrollTo(0, 0);
   };
   const goHome = () => {
     window.history.pushState({}, '', '/');
     setPath('/');
+    // Leaving a booking clears the paid confirmation, so the next /book/:busId
+    // starts on a clean form.
+    setPaidTicketId(null);
     window.scrollTo(0, 0);
   };
 
@@ -51,21 +56,43 @@ export default function App() {
   const [activeTicketToView, setActiveTicketToView] = useState<BookingTicket | null>(null);
   
   // Booking flow state
-  const [selectedBusForBooking, setSelectedBusForBooking] = useState<BusSchedule | null>(null);
-  const [pendingMpesaData, setPendingMpesaData] = useState<{
-    bus: BusSchedule;
-    seats: string[];
-    passengerName: string;
-    passengerPhone: string;
-    passengerEmail: string;
-    idNumber: string;
-    pickupPoint: string;
-    dropoffPoint: string;
-    totalAmount: number;
-  } | null>(null);
+  const [pendingMpesaData, setPendingMpesaData] = useState<MpesaCheckout | null>(null);
 
-  // Tickets stored in state
-  const [allTickets, setAllTickets] = useState<BookingTicket[]>(DEMO_TICKETS);
+  // Tickets live in localStorage, so Manage Ticket and the seat holds below
+  // survive a reload instead of re-seeding from DEMO_TICKETS every time.
+  const [allTickets, setAllTickets] = useState<BookingTicket[]>(() => loadTickets() ?? DEMO_TICKETS);
+  useEffect(() => {
+    saveTickets(allTickets);
+  }, [allTickets]);
+
+  // Seat codes held by tickets booked on this device, keyed by schedule id.
+  // The seat map, the board counter and the booking form all read from this.
+  const bookedSeatHolds = useMemo<Record<string, string[]>>(() => {
+    const holds: Record<string, string[]> = {};
+    for (const ticket of allTickets) {
+      if (!ticket.busScheduleId) continue;
+      (holds[ticket.busScheduleId] ??= []).push(...ticket.seats);
+    }
+    return holds;
+  }, [allTickets]);
+
+  // M-PESA is only offered once `api/mpesa.js` reports real Daraja credentials.
+  const [mpesaEnabled, setMpesaEnabled] = useState(false);
+  const [paidTicketId, setPaidTicketId] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/mpesa', { headers: { Accept: 'application/json' } })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.configured === true) setMpesaEnabled(true);
+      })
+      .catch(() => {
+        // No server function in dev — the M-PESA button stays "coming soon".
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Search Results State
   const [searchParams, setSearchParams] = useState<{
@@ -134,9 +161,8 @@ export default function App() {
     goToSoonestBooking();
   };
 
-  const handleProceedToMpesa = (bookingData: typeof pendingMpesaData) => {
-    setSelectedBusForBooking(null);
-    setPendingMpesaData(bookingData);
+  const handleStartMpesaCheckout = (checkout: MpesaCheckout) => {
+    setPendingMpesaData(checkout);
   };
 
   const handlePaymentSuccess = (receiptData: {
@@ -174,6 +200,7 @@ export default function App() {
 
     setAllTickets([newTicket, ...allTickets]);
     setPendingMpesaData(null);
+    setPaidTicketId(newTicket.ticketId);
     setActiveTicketToView(newTicket);
   };
 
@@ -192,7 +219,36 @@ export default function App() {
       schedulesToRender.find((s) => s.id === wantedId) ??
       schedulesToRender.find((s) => s.busNumber === wantedId) ??
       null;
-    return <BookingPage bus={bus} onBack={goHome} />;
+    return (
+      <>
+        {/* Keyed by departure so switching buses remounts a clean form. */}
+        <BookingPage
+          key={wantedId}
+          bus={bus}
+          onBack={goHome}
+          extraBookedSeats={bus ? bookedSeatHolds[bus.id] ?? [] : []}
+          mpesaEnabled={mpesaEnabled}
+          onPayWithMpesa={handleStartMpesaCheckout}
+          paidTicketId={paidTicketId}
+        />
+
+        {/* Payment and ticket overlays belong to this route too — without them a
+            M-PESA payment on /book/:busId would confirm with nothing on screen. */}
+        {pendingMpesaData && (
+          <MpesaModal
+            bookingData={pendingMpesaData}
+            onClose={() => setPendingMpesaData(null)}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
+        )}
+        {activeTicketToView && (
+          <TicketModal
+            ticket={activeTicketToView}
+            onClose={() => setActiveTicketToView(null)}
+          />
+        )}
+      </>
+    );
   }
 
   return (
@@ -229,6 +285,7 @@ export default function App() {
                 ? { origin: searchParams.origin, destination: searchParams.destination }
                 : null
             }
+            extraBookedSeats={bookedSeatHolds}
             onSelectBusToBook={(bus) => goToBooking(bus.id)}
             onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
           />
@@ -267,16 +324,7 @@ export default function App() {
       />
 
       {/* 9. MODALS */}
-      {/* A. Coach Seat Booking Modal */}
-      {selectedBusForBooking && (
-        <SeatBookingModal
-          bus={selectedBusForBooking}
-          onClose={() => setSelectedBusForBooking(null)}
-          onProceedToMpesa={handleProceedToMpesa}
-        />
-      )}
-
-      {/* B. M-PESA STK Push Checkout Modal */}
+      {/* A. M-PESA STK Push Checkout Modal */}
       {pendingMpesaData && (
         <MpesaModal
           bookingData={pendingMpesaData}
@@ -285,7 +333,7 @@ export default function App() {
         />
       )}
 
-      {/* C. Official e-Ticket & Boarding Pass View */}
+      {/* B. Official e-Ticket & Boarding Pass View */}
       {activeTicketToView && (
         <TicketModal
           ticket={activeTicketToView}
@@ -293,7 +341,7 @@ export default function App() {
         />
       )}
 
-      {/* D. Manage / Retrieve Existing Ticket Modal */}
+      {/* C. Manage / Retrieve Existing Ticket Modal */}
       <ManageTicketModal
         isOpen={isManageTicketOpen}
         onClose={() => setIsManageTicketOpen(false)}

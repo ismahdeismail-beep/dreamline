@@ -4,7 +4,11 @@ Technical reference for the Dreamline client application.
 
 ## Overview
 
-Dreamline is a **single-page React application with no backend**. All domain data (schedules, routes, offices, tickets) ships as static TypeScript modules in `src/data/`, and all runtime state lives in React `useState` hooks inside `App.tsx`. Checkout hands off to WhatsApp — no payment API is called from the client.
+Dreamline is a **single-page React application with exactly one server-side file**. All
+domain data (schedules, routes, offices, tickets) ships as static TypeScript modules in
+`src/data/`, and runtime state lives in React `useState` hooks inside `App.tsx`. Checkout
+hands off to WhatsApp by default; M-PESA STK push goes through `api/mpesa.js`, a Vercel
+serverless function that keeps the Daraja credentials off the client.
 
 ```
 ┌────────────────────────────── Browser ───────────────────────────────┐
@@ -12,9 +16,16 @@ Dreamline is a **single-page React application with no backend**. All domain dat
 │   └─ src/main.tsx  → React root + service worker registration       │
 │       └─ src/App.tsx  (owns ALL application state)                  │
 │           ├─ presentational components (Navbar, Hero, sections...)  │
-│           ├─ modal components (Seat, M-PESA, Ticket, Manage)        │
+│           ├─ overlays (SeatMap, M-PESA, Ticket, Manage)             │
+│           ├─ src/lib/ticketStore.ts  (localStorage persistence)     │
 │           └─ src/data/dreamlineData.ts (static domain data)         │
-└──────────────────────────────────────────────────────────────────────┘
+└──────────────────────────────┬───────────────────────────────────────┘
+                               │ fetch('/api/mpesa')  [M-PESA only]
+                               ▼
+                    ┌──────────────────────────┐
+                    │  api/mpesa.js (Vercel)   │  Daraja OAuth + STK push
+                    │  → Safaricom Daraja API  │  + STK status query
+                    └──────────────────────────┘
 ```
 
 ## Technology choices
@@ -26,7 +37,8 @@ Dreamline is a **single-page React application with no backend**. All domain dat
 | Styling | Tailwind CSS 4 — **plugin-only config**, no `tailwind.config.js` / `postcss.config.js` |
 | Icons | lucide-react (tree-shaken named imports) |
 | State | Local component state only; no Redux/Zustand/Context yet |
-| Routing | Custom `window.history.pushState` + pathname matching (no React Router); `vercel.json` SPA rewrite for `/book/:busId` deep links |
+| Routing | Custom `window.history.pushState` + pathname matching (no React Router); `vercel.json` SPA rewrite for `/book/:busId` deep links (the rewrite explicitly excludes `api/`) |
+| Server | `api/mpesa.js` — one Vercel Node function, native `fetch`, **zero server-side npm dependencies** |
 
 ## State ownership (`src/App.tsx`)
 
@@ -35,9 +47,12 @@ All state is declared at the root and passed down as props:
 | State | Type | Purpose |
 |---|---|---|
 | `searchParams` | `{origin, destination, date, passengers} \| null` | Active search from HeroSection |
-| `allTickets` | `BookingTicket[]` | Ticket store, initialised with `DEMO_TICKETS` |
-| `selectedBusForBooking` | `BusSchedule \| null` | Opens SeatBookingModal |
+| `allTickets` | `BookingTicket[]` | Ticket store — loaded from `localStorage`, seeded with `DEMO_TICKETS` when empty, written back on every change |
+| `pendingMpesaData` | `MpesaCheckout \| null` | Opens `MpesaModal` (set by the booking page's M-PESA button) |
 | `activeTicketToView` | `BookingTicket \| null` | Opens TicketModal |
+| `paidTicketId` | `string \| null` | Lets the booking page show its paid confirmation after the ticket view closes |
+| `mpesaEnabled` | `boolean` | Result of `GET /api/mpesa` — controls whether the M-PESA button is live or "coming soon" |
+| `bookedSeatHolds` | `Record<string, string[]>` | Derived (`useMemo`) seat codes held by `allTickets`, keyed by schedule id |
 | `isWhatsAppHubOpen` / `whatsAppInitialMsg` / `selectedRouteForWhatsApp` | — | Floating WhatsApp hub state |
 | `isManageTicketOpen` | `boolean` | ManageTicketModal visibility |
 | `activeTabFilter` | `'All' \| 'Morning' \| 'Afternoon' \| 'Night'` | Schedule time filter |
@@ -51,32 +66,44 @@ schedulesToRender  = displayedSchedules.length ? displayedSchedules : SAMPLE_SCH
 
 If a searched city pair has no sample schedule, the UI falls back to the first four schedules rather than showing an empty state.
 
-## Booking flow (WhatsApp-first)
+## Booking flow (WhatsApp-first, M-PESA optional)
 
-Checkout is deliberately simple: **users are connected to the WhatsApp number for further info before any payment is attempted.** M-PESA STK push is not configured yet, so the payment modal is unwired.
+Every "Book"-style control lands on `/book/:busId`. From there the passenger picks
+details and chooses one of two checkouts:
 
 ```
-HeroSection.onSearch(params)
-  → setSearchParams → scroll to #search-results
-  → App renders schedulesToRender list
+HeroSection / NextBusesBoard / RoutesDirectory
+  → goToBooking(busId) → /book/:busId  → BookingPage
         │
-        ├─ "Ask Availability" button → buildWhatsAppLink() → window.open
+        ├─ "Confirm on WhatsApp" (default, always available)
+        │     → buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, full booking summary)
+        │     → window.open wa.me deep link
+        │     → booking desk confirms seats & sends M-PESA payment instructions
+        │     → flow ends (no ticket generated client-side)
         │
-        └─ "Select Seat" → setSelectedBusForBooking(bus)
-              → SeatBookingModal
-                    collects: seats[] (required),
-                              passengerName + passengerPhone (optional prefills),
-                              pickupPoint, dropoffPoint
-              → "Continue on WhatsApp" (single primary CTA)
-                    → buildWhatsAppLink(DEFAULT_WHATSAPP_NUMBER, msg)
-                    → window.open wa.me deep link with full booking summary
-                    → booking desk confirms seats & sends M-PESA payment instructions
-                    → flow ends (no ticket is generated client-side)
+        └─ "Pay KSh N with M-PESA"   [only when GET /api/mpesa says configured]
+              → validate name + phone → App.setPendingMpesaData(checkout)
+              → MpesaModal
+                    POST /api/mpesa {action:'stkpush', phone, amount, reference}
+                    → Safaricom Daraja pushes a PIN prompt to the handset
+                    → poll POST {action:'query'} every 3s (max ~60s)
+                    → only ResultCode 0 issues a ticket:
+                        App.handlePaymentSuccess → allTickets (persisted)
+                        → TicketModal opens over the booking page
 ```
 
-**Deferred to a later phase:** wiring `MpesaModal` for real Daraja STK push after the booking desk confirms the reservation. The component exists and type-checks but is not rendered by `App.tsx`.
+Seat choice is optional everywhere: with no seat selected the desk assigns one, so the
+fare is quoted as `max(seats, 1) × seatPrice` (`vipPrice` for VIP coaches,
+`regularPrice` otherwise).
 
-**Persistence:** demo tickets seeded from `DEMO_TICKETS` exist only in memory. Refreshing the page re-seeds `allTickets`.
+**M-PESA without credentials:** `api/mpesa.js` answers `501 { configured:false }` while
+any `DARAJA_*` variable is missing, `mpesaEnabled` stays `false`, and the button renders
+disabled as "coming soon". Nothing in the client ever sees a Daraja secret.
+
+**Persistence:** `src/lib/ticketStore.ts` reads and writes `dreamline.tickets.v1` in
+`localStorage`. `App` seeds `DEMO_TICKETS` only when nothing is stored, saves on every
+change, and derives `bookedSeatHolds` from the stored tickets — so a booked seat stays
+taken after a refresh. Storage failures (private mode, quota) degrade to in-memory state.
 
 ## Component map
 
@@ -97,10 +124,10 @@ HeroSection.onSearch(params)
 | Component | Trigger | Notes |
 |---|---|---|
 | `WhatsAppAddOn` | Floating button / any WhatsApp CTA | Expandable hub with quick-reply chips, phone edit, copy-number. Brand-green surface |
-| `SeatBookingModal` | `selectedBusForBooking != null` | Seat map, optional name/phone → single "Continue on WhatsApp" CTA |
-| `MpesaModal` | **not wired** — never rendered | Kept for the future Daraja STK integration; `App.tsx` no longer imports it |
-| `TicketModal` | `activeTicketToView != null` | E-ticket / boarding pass render |
-| `ManageTicketModal` | `isManageTicketOpen` | Lists `allTickets`, opens one in TicketModal |
+| `SeatMapModal` | "Open full seat map" on the booking page | Interactive map built from `seatRowsFor()`; occupancy from `bookedSeatsFor()`; returns the chosen codes to the form (max 4). Renders on `/book/:busId` |
+| `MpesaModal` | `pendingMpesaData != null` | Real STK push via `api/mpesa.js`: initiate → poll → ticket only on Safaricom success. Renders on both routes |
+| `TicketModal` | `activeTicketToView != null` | E-ticket / boarding pass render. Also rendered on the booking route so a payment there confirms visibly |
+| `ManageTicketModal` | `isManageTicketOpen` | Searches `allTickets` (which already contains the seeded demo bookings), opens one in TicketModal |
 
 ### Interaction convention
 
@@ -151,8 +178,22 @@ interface BookingTicket {
 | `OFFICE_LOCATIONS` | `OfficeLocation[]` | Office contacts section |
 | `DEMO_TICKETS` | `BookingTicket[]` | Pre-seeded tickets for Manage flow |
 | `buildWhatsAppLink(phone, message)` | fn | `wa.me` deep link with encoded text |
-| `coachImageFor(coachType)` | fn | Maps a coach type to its banner image, or `undefined` |
+| `seatRowsFor(bus)` | fn | Seat grid for a departure (2+1 or 2+2 per row), sized to `totalSeats` |
+| `seatCodesFor(bus)` | fn | Every seat code in row order — the chip list and map both read it |
+| `bookedSeatsFor(bus, extra?)` | fn | Deterministic occupancy (seeded by schedule id) unioned with local holds |
+| `availableSeatsFor(bus, extra?)` | fn | `totalSeats − booked`, clamped at 0 — the board's "N of M seats left" |
 | `getTimeOfDayCategory(departureTime)` | fn | Buckets `"06:30 AM"` → `Morning` \| `Afternoon` \| `Night` for the board filter |
+
+`src/lib/ticketStore.ts` adds `loadTickets()` / `saveTickets()` over the
+`dreamline.tickets.v1` localStorage key, validating the shape on read.
+
+### Seat inventory
+
+`BusSchedule.availableSeats` is the declared number of sellable seats. The *identity* of
+those seats is derived from the schedule id with a seeded PRNG (FNV-1a + mulberry32) so it
+is stable across reloads and never uses `Math.random`. Seats held by tickets stored on the
+device are folded in through the `extraBookedSeats` argument, which `App` derives from
+`allTickets` (`bookedSeatHolds`).
 
 ## Styling system
 
@@ -181,23 +222,37 @@ emitted from markup that no longer exists in `src/`, which cut the production CS
 
 ## Coach photography
 
-`COACH_IMAGES` in `src/data/dreamlineData.ts` maps coach types to banner images, resolved
-per card through `coachImageFor()`. `BusSchedule.coachImage` overrides the type-level
-mapping for an individual departure. `CoachPhoto` renders an indigo branded placeholder
-when nothing is configured, so cards degrade cleanly instead of showing broken images.
+`BusSchedule.coachImage` (optional, per schedule) is the only wiring path; `CoachPhoto`
+renders an indigo branded placeholder when it is unset, so cards degrade cleanly instead
+of showing broken images. Every schedule currently leaves it unset and `public/coaches/`
+is empty — the candidate images have no verifiable licence (docs/PHOTO-LICENSING.md).
 
-The map is intentionally empty. Candidates in `unused-photos/` must clear
+The type-level `COACH_IMAGES` map and `coachImageFor()` were deleted: each schedule
+supplies its own `coachImage`, so the fallback could never fire. New candidates must clear
 `scripts/photo-quality-gate.ps1` (landscape, aspect 1.3–2.6, short side ≥ 560 px) and have
 confirmed licensing before being wired.
 
 ## Known gaps
 
-1. **No backend — and no server stack.** The client is a pure SPA. Unused server-side packages (`express`, `tsx`, `dotenv`) and the unused Gemini/animation SDKs (`@google/genai`, `motion`) were removed from `package.json` during repo cleanup; add them back only when there is real code to use them.
-2. **Gemini not wired.** `GEMINI_API_KEY` is documented in `.env.example` but no code imports an AI SDK or reads the key.
-3. **M-PESA STK deliberately deferred.** Checkout hands off to WhatsApp instead. `MpesaModal.tsx` is a complete but unwired stub — hooking it up requires Safaricom Daraja credentials, a server endpoint to initiate/verify STK pushes, and a re-connect of `SeatBookingModal` → `MpesaModal`.
-4. **No persistence.** Bookings are lost on refresh; there is no `localStorage`/DB layer.
-5. **No routing.** Single page; navigation is scroll-based via `document.getElementById(...).scrollIntoView()`.
-6. **Seat map is static.** Occupied seats are a hard-coded set (`1B, 2A, 4A, 4B, 6C, 7A, 8B, 9C`) — no real inventory.
+1. **Almost no server.** The only server-side code is `api/mpesa.js` (M-PESA STK). There
+   is no database, no user accounts and no server-rendered HTML. Unused server-side
+   packages were removed from `package.json`; add them back only when there is real code
+   to use them.
+2. **M-PESA needs Daraja credentials.** The flow is complete end to end (push → poll →
+   ticket), but it stays disabled until the five `DARAJA_*` variables are configured —
+   see docs/DEPLOYMENT.md#m-pesa-daraja. Local `npm run dev` has no server function, so
+   the button reads "coming soon" there.
+3. **Payments are not reconciled server-side.** A ticket exists only in this browser's
+   `localStorage`; there is no shared record of a sale, and another device cannot see it.
+   The STK callback URL is required by Daraja but nothing consumes it yet.
+4. **Seat holds are local.** Occupancy combines static schedule data with tickets booked
+   on this device — two passengers on two devices can still pick the same seat, and the
+   WhatsApp desk remains the authority on final allocation.
+5. **Gemini not wired.** `GEMINI_API_KEY` is documented in `.env.example` but no code
+   imports an AI SDK or reads the key.
+6. **Routing is hand-rolled.** `window.history.pushState` + pathname matching covers
+   `/` and `/book/:busId` only; there is no router library, no 404 route and no route
+   params beyond the bus id.
 
 ## Type checking
 

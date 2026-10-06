@@ -4,8 +4,10 @@ Official marketing and ticket-booking front end for Dreamline Express, a long-di
 coach operator in Kenya. Vite + React + TypeScript single-page app, PWA-capable, with a
 WhatsApp-first checkout funnel.
 
-> Checkout hands off to WhatsApp by design. The in-app M-PESA STK modal is a complete
-> but unwired stub — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#known-gaps).
+> Checkout hands off to WhatsApp by default. M-PESA STK push is wired end to end —
+> `api/mpesa.js` holds the Daraja credentials and `MpesaModal` waits for Safaricom's
+> verdict — but the payment button stays disabled ("coming soon") until those
+> credentials are configured. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#environment-variables).
 
 ## Quick start
 
@@ -17,9 +19,9 @@ npm run build    # production bundle → dist/
 npm run preview  # serve dist/ locally
 ```
 
-No environment variables are required to run the client. `GEMINI_API_KEY` is documented
-in `.env.example` but is **not read by any code** — see
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#environment-variables).
+No environment variables are required to run the client. `DARAJA_*` (Safaricom) enable
+M-PESA checkout on Vercel; `GEMINI_API_KEY` is documented in `.env.example` but is
+**not read by any code** — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#environment-variables).
 
 ## Brand
 
@@ -42,10 +44,13 @@ Single page, scroll-based navigation via anchor targets, plus a standalone booki
 3. **Routes & fares directory** (`#routes`)
 4. **Fleet & safety** (`#fleet`)
 5. **Offices / terminals** (`#offices`)
-6. Footer, floating WhatsApp hub, and modals (seat booking, M-PESA, ticket view, manage ticket)
+6. Footer, floating WhatsApp hub, and modals (M-PESA checkout, ticket view, manage ticket)
 7. **Booking page** (`/book/:busId`) — standalone route with trip summary, minimal booking form
-   (name, phone, pickup, drop-off, optional seat), inline Call/WhatsApp desk buttons, and a
-   floating dock that auto-hides on scroll/focus and yields to the submit CTA
+   (name, phone, pickup, drop-off, optional seat picked from a chip row or the full
+   interactive seat map), inline Call/WhatsApp desk buttons, a floating dock that auto-hides
+   on scroll/focus and yields to the submit CTA, and M-PESA checkout when Daraja is configured
+8. **Overlays** — seat map, M-PESA checkout, e-ticket, Manage Ticket (e-ticket is reachable
+   from the booking route too, so a payment there never confirms off-screen)
 
 ## Key components
 
@@ -55,20 +60,35 @@ Single page, scroll-based navigation via anchor targets, plus a standalone booki
 | `NextBusesBoard` | Departure listing, corridor + time-of-day filters, empty state |
 | `RoutesDirectory` | Route/fare cards |
 | `FleetAndSafety` | Coach classes and safety protocols |
-| `SeatBookingModal` | Seat selection → WhatsApp handoff |
+| `SeatMapModal` | Interactive seat map for one departure — occupancy from the shared inventory, hands the chosen seats back to the booking form |
+| `MpesaModal` | M-PESA STK push checkout — initiates the push, polls `api/mpesa.js` until Safaricom confirms, then issues the ticket |
 | `WhatsAppAddOn` | Floating button + expandable enquiry hub |
-| `BookingPage` | Standalone `/book/:busId` route — trip summary, minimal form, inline + floating desk access |
+| `BookingPage` | Standalone `/book/:busId` route — trip summary, minimal form, seat chips, seat map, inline + floating desk access |
+
+Tickets persist in `localStorage` (`src/lib/ticketStore.ts`), so Manage Ticket and the
+seat holds survive a refresh.
+
+## Seat inventory
+
+Each schedule declares `totalSeats` and `availableSeats`; *which* seats are taken is
+derived deterministically from the schedule id (`bookedSeatsFor()` in
+`src/data/dreamlineData.ts`), then unioned with seats held by tickets booked on this
+device. The board's "N of M seats left", the booking form's chips and the seat map all
+read that one function, so they can never disagree. Seat layout follows the coach:
+2+1 for VIP/sleeper (3 across), 2+2 for executive (4 across).
 
 ## Coach photography
 
 Coach banner photos are attached per schedule via the `coachImage` field on each entry in
-`SCHEDULES` (`src/data/dreamlineData.ts`), with `coachImageFor()` as a fallback lookup by
-coach type. `CoachPhoto` degrades to a branded placeholder when no image is configured, so
-cards never render broken images.
+`SAMPLE_SCHEDULES` (`src/data/dreamlineData.ts`). `CoachPhoto` degrades to a branded
+placeholder when no image is configured, so cards never render broken images. The field is
+currently **unset for every schedule** and `public/coaches/` is empty: the type-level
+`COACH_IMAGES` fallback was deleted because per-schedule wiring made it unreachable.
 
-> **Licensing status: unresolved.** The 8 images currently in `public/coaches/` carry no
-> embedded source or licence metadata and are not hosted on the official site. Treat them
-> as unusable for public marketing until provenance is confirmed — see
+> **Licensing status: unresolved.** The eight candidate images that used to ship in
+> `public/coaches/` carry no embedded source or licence metadata and are not hosted on the
+> official site, so they were withheld from the site. Treat them as unusable for public
+> marketing until provenance is confirmed — see
 > [docs/PHOTO-LICENSING.md](docs/PHOTO-LICENSING.md).
 
 Candidate photos can be screened before being wired:

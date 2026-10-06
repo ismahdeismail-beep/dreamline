@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useModalA11y } from '../hooks/useModalA11y';
-import { 
-  X, 
-  Smartphone, 
-  CheckCircle2, 
-  Loader2, 
-  ShieldCheck, 
+import {
+  X,
+  Smartphone,
+  CheckCircle2,
+  Loader2,
+  ShieldCheck,
   AlertCircle,
   ArrowRight,
-  Sparkles
 } from 'lucide-react';
-import { BusSchedule } from '../data/dreamlineData';
+import {
+  BusSchedule,
+  DEFAULT_WHATSAPP_NUMBER,
+  buildWhatsAppLink,
+} from '../data/dreamlineData';
 
 interface MpesaModalProps {
   // Non-nullable: App renders this component only when a checkout is pending.
@@ -33,59 +36,161 @@ interface MpesaModalProps {
   }) => void;
 }
 
+type Status = 'idle' | 'sending' | 'prompt_sent' | 'success' | 'error';
+
+/** 07XX / 01XX / 7XX → 254XXXXXXXXX, the format Daraja requires. */
+function toMsisdn(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('254')) return digits;
+  if (digits.startsWith('0')) return `254${digits.slice(1)}`;
+  if (digits.length === 9) return `254${digits}`;
+  return digits;
+}
+
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLLS = 20; // ~60s, then we stop waiting on Safaricom
+
+/**
+ * M-PESA Express (STK push) checkout.
+ *
+ * Talks to the `api/mpesa.js` server function: it holds the Daraja credentials
+ * (never shipped to the browser), initiates the push and answers status polls
+ * with the Daraja STK-query API. Nothing is confirmed client-side — a ticket is
+ * only issued when Safaricom reports the payment as successful.
+ */
 export const MpesaModal: React.FC<MpesaModalProps> = ({
   bookingData,
   onClose,
-  onPaymentSuccess
+  onPaymentSuccess,
 }) => {
   // Mounted only while a checkout is in flight, so it is always "open".
   const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
 
   const [phone, setPhone] = useState(bookingData.passengerPhone);
-  const [status, setStatus] = useState<'idle' | 'sending' | 'prompt_sent' | 'success'>('idle');
-  const [countdown, setCountdown] = useState(12);
+  const [status, setStatus] = useState<Status>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
+  // One reference per checkout, stable across retries of the same payment.
+  const [bookingRef] = useState(
+    () => `DL-${Math.floor(10000 + Math.random() * 90000)}-KE`
+  );
 
-  // Generate random Kenyan M-Pesa receipt format e.g. QEK849201L
-  const generateMpesaCode = () => {
-    const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-    const l1 = letters[Math.floor(Math.random() * letters.length)];
-    const l2 = letters[Math.floor(Math.random() * letters.length)];
-    const l3 = letters[Math.floor(Math.random() * letters.length)];
-    const num = Math.floor(100000 + Math.random() * 900000);
-    return `Q${l1}${l2}${num}${l3}`;
+  const polls = useRef(0);
+  const finished = useRef(false);
+
+  const describeError = (message: string) => {
+    setErrorMsg(message);
+    setStatus('error');
   };
 
-  const handleSendSTK = () => {
-    setStatus('sending');
-    setTimeout(() => {
-      setStatus('prompt_sent');
-      setCountdown(10);
-    }, 1200);
-  };
-
-  useEffect(() => {
-    let timer: any;
-    if (status === 'prompt_sent' && countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    } else if (status === 'prompt_sent' && countdown === 0) {
-      // Auto confirm for seamless test
-      handleConfirmPayment();
+  const handleSendSTK = async () => {
+    const msisdn = toMsisdn(phone);
+    if (msisdn.length !== 12 || !msisdn.startsWith('254')) {
+      setErrorMsg('Enter a Safaricom number like 0712 345 678.');
+      return;
     }
-    return () => clearTimeout(timer);
-  }, [status, countdown]);
 
-  const handleConfirmPayment = () => {
-    setStatus('success');
-    const code = generateMpesaCode();
-    const ref = `DL-${Math.floor(10000 + Math.random() * 90000)}-KE`;
-    setTimeout(() => {
-      onPaymentSuccess({
-        bookingRef: ref,
-        mpesaReceipt: code,
-        paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    setStatus('sending');
+    setErrorMsg('');
+
+    try {
+      const response = await fetch('/api/mpesa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'stkpush',
+          phone: msisdn,
+          amount: Math.max(1, Math.round(bookingData.totalAmount)),
+          reference: bookingRef,
+          description: `Dreamline ${bookingData.bus.origin}-${bookingData.bus.destination}`,
+        }),
       });
-    }, 1200);
+      const data: { ok?: boolean; error?: string; checkoutRequestId?: string } =
+        await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.ok || !data.checkoutRequestId) {
+        if (data.error?.includes('not configured') || response.status === 501) {
+          describeError(
+            'M-PESA checkout is not configured yet. Set the Daraja credentials, or reserve on WhatsApp instead.'
+          );
+        } else {
+          describeError(data.error || 'The payment prompt could not be sent. Please try again.');
+        }
+        return;
+      }
+
+      polls.current = 0;
+      setCheckoutRequestId(data.checkoutRequestId);
+      setStatus('prompt_sent');
+    } catch {
+      describeError('Could not reach the payment service. Check your connection and try again.');
+    }
   };
+
+  // Poll the server for Safaricom's verdict on this push.
+  useEffect(() => {
+    if (status !== 'prompt_sent' || !checkoutRequestId) return;
+
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+
+    const poll = async () => {
+      try {
+        const response = await fetch('/api/mpesa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'query', checkoutRequestId }),
+        });
+        const data: {
+          ok?: boolean;
+          state?: 'pending' | 'success' | 'failed';
+          mpesaReceipt?: string;
+          error?: string;
+        } = await response.json().catch(() => ({}));
+
+        if (cancelled || finished.current) return;
+
+        if (data.state === 'success' && data.mpesaReceipt) {
+          finished.current = true;
+          setStatus('success');
+          setTimeout(() => {
+            onPaymentSuccess({
+              bookingRef,
+              mpesaReceipt: data.mpesaReceipt as string,
+              paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            });
+          }, 1200);
+          return;
+        }
+        if (data.state === 'failed') {
+          finished.current = true;
+          describeError(
+            data.error || 'The M-PESA payment was not completed. No money was deducted.'
+          );
+          return;
+        }
+      } catch {
+        // Transient network blip — keep polling until the budget runs out.
+      }
+
+      polls.current += 1;
+      if (polls.current >= MAX_POLLS) {
+        finished.current = true;
+        describeError(
+          'Safaricom has not confirmed the payment yet. If you entered your PIN, the ticket will be confirmed on WhatsApp — quote this reference: ' +
+            bookingRef
+        );
+        return;
+      }
+      timer = setTimeout(poll, POLL_INTERVAL_MS);
+    };
+
+    timer = setTimeout(poll, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [status, checkoutRequestId, bookingRef, onPaymentSuccess]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -97,7 +202,6 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
         tabIndex={-1}
         className="bg-white rounded-3xl max-w-md w-full text-slate-900 shadow-2xl overflow-hidden animate-in fade-in duration-200"
       >
-        
         {/* M-PESA Header */}
         <div className="bg-[#008000] text-white p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -109,13 +213,14 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
                 M-PESA Express Checkout
               </h3>
               <p className="text-xs text-emerald-100">
-                Safaricom STK Push • Paybill 522123
+                Safaricom STK Push • Ref {bookingRef}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
+            aria-label="Close checkout"
             className="p-1.5 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-700 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -137,9 +242,9 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
               </span>
             </div>
             <div className="flex items-center justify-between text-slate-600">
-              <span>Seats Selected:</span>
+              <span>Seats:</span>
               <span className="font-mono font-bold text-slate-900">
-                {bookingData.seats.join(', ')}
+                {bookingData.seats.length ? bookingData.seats.join(', ') : 'Desk assigned'}
               </span>
             </div>
             <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
@@ -154,12 +259,13 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
           {status === 'idle' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5" htmlFor="mpesa-phone">
                   Confirm Safaricom Phone Number:
                 </label>
                 <div className="relative">
                   <Smartphone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
+                    id="mpesa-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -168,7 +274,8 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">
-                  An automatic STK prompt will appear on this handset to input your secret M-Pesa PIN.
+                  An STK prompt will appear on this handset — enter your secret M-PESA PIN to
+                  pay KSh {bookingData.totalAmount.toLocaleString()}.
                 </p>
               </div>
 
@@ -189,9 +296,7 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
               <p className="text-sm font-bold text-slate-800">
                 Initiating Safaricom STK Push...
               </p>
-              <p className="text-xs text-slate-500">
-                Contacting M-Pesa gateway for phone {phone}
-              </p>
+              <p className="text-xs text-slate-500">Contacting M-Pesa gateway for {phone}</p>
             </div>
           )}
 
@@ -206,22 +311,14 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
                   STK Push Sent to Your Phone!
                 </h4>
                 <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                  Please unlock your phone <span className="font-bold font-mono">{phone}</span> and enter your secret M-Pesa PIN for KSh {bookingData.totalAmount.toLocaleString()}.
+                  Unlock <span className="font-bold font-mono">{phone}</span> and enter your
+                  M-PESA PIN for KSh {bookingData.totalAmount.toLocaleString()}.
                 </p>
               </div>
 
-              <div className="text-xs text-slate-400 font-mono">
-                Listening for Safaricom confirmation... ({countdown}s)
-              </div>
-
-              <div className="pt-2">
-                <button
-                  type="button"
-                  onClick={handleConfirmPayment}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
-                >
-                  Simulate PIN Entered (Instant Confirm)
-                </button>
+              <div className="text-xs text-slate-400 font-mono flex items-center justify-center gap-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Waiting for Safaricom confirmation...
               </div>
             </div>
           )}
@@ -240,13 +337,46 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
             </div>
           )}
 
+          {status === 'error' && (
+            <div className="space-y-4">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    finished.current = false;
+                    setCheckoutRequestId(null);
+                    setErrorMsg('');
+                    setStatus('idle');
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-[#008000] hover:bg-[#007000] text-white text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Try again
+                </button>
+                <a
+                  href={buildWhatsAppLink(
+                    DEFAULT_WHATSAPP_NUMBER,
+                    `Habari Dreamline! I hit a problem paying with M-PESA (ref ${bookingRef}) for ${bookingData.bus.origin} → ${bookingData.bus.destination}. Please help.`
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 py-3 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 hover:border-[#25D366] hover:text-[#128C4A] transition-colors"
+                >
+                  Ask the desk
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Safaricom security footer */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400">
             <ShieldCheck className="w-3.5 h-3.5 text-[#008000]" />
-            <span>256-bit Encrypted Safaricom Daraja API</span>
+            <span>Safaricom Daraja API — credentials never reach your browser</span>
           </div>
         </div>
-
       </div>
     </div>
   );

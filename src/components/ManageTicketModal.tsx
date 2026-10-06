@@ -13,7 +13,7 @@ import {
   Clock,
   ArrowRight
 } from 'lucide-react';
-import { BookingTicket, DEMO_TICKETS, DEFAULT_WHATSAPP_NUMBER, DISPLAY_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
+import { BookingTicket, DEFAULT_WHATSAPP_NUMBER, DISPLAY_WHATSAPP_NUMBER, buildWhatsAppLink } from '../data/dreamlineData';
 
 interface ManageTicketModalProps {
   isOpen: boolean;
@@ -42,8 +42,9 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
     if (!q) return;
 
     setSearched(true);
-    const combined = [...allTickets, ...DEMO_TICKETS];
-    const match = combined.find(
+    // `allTickets` already carries the seeded demo bookings, so searching it
+    // alone finds everything without duplicating every result.
+    const match = allTickets.find(
       t => t.bookingRef.toLowerCase() === q ||
            t.passengerPhone.replace(/[^0-9]/g, '').includes(q.replace(/[^0-9]/g, '')) ||
            t.idNumber.toLowerCase() === q

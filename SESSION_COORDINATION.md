@@ -23,36 +23,38 @@ the change. Unclaimed = free to edit.
 
 | File | Claimed by | Since | Note |
 |------|-----------|-------|------|
-| `src/App.tsx` | — | — | free |
-| `src/BookingPage.tsx` | **session A** | 2026-10-04 | adding call/WhatsApp dock |
-| `src/components/HeroSection.tsx` | **session A** | 2026-10-04 | Today/Tomorrow date field |
+| `src/App.tsx` | **session C** | 2026-10-06 | persistence + M-PESA wiring + seat holds |
+| `src/BookingPage.tsx` | **session C** | 2026-10-06 | M-PESA CTA, seat chips, seat-map entry (session A's dock work landed in `0f99e9a`) |
+| `src/components/HeroSection.tsx` | — | — | free — session A's Today/Tomorrow field landed in `0f99e9a` |
 | `src/components/RoutesDirectory.tsx` | — | — | free |
 | `src/components/Navbar.tsx` | — | — | free |
 | `src/components/Footer.tsx` | — | — | free |
-| `src/components/NextBusesBoard.tsx` | — | — | free |
-| `src/components/SeatBookingModal.tsx` | — | — | free |
-| `src/components/ManageTicketModal.tsx` | — | — | free |
-| `src/components/MpesaModal.tsx` | — | — | free |
+| `src/components/NextBusesBoard.tsx` | **session C** | 2026-10-06 | inventory-driven seat counter |
+| `src/components/SeatMapModal.tsx` | **session C** | 2026-10-06 | renamed from `SeatBookingModal.tsx`, now a seat picker opened from `/book/:busId` |
+| `src/components/ManageTicketModal.tsx` | **session C** | 2026-10-06 | deduped search against `allTickets` |
+| `src/components/MpesaModal.tsx` | **session C** | 2026-10-06 | real STK push + status polling |
 | `src/components/TicketModal.tsx` | — | — | free |
 | `src/components/WhatsAppAddOn.tsx` | — | — | free |
 | `src/components/OfficeContacts.tsx` | — | — | free |
 | `src/components/FleetAndSafety.tsx` | — | — | free |
 | `src/components/Button.tsx` | — | — | free |
 | `src/components/CoachPhoto.tsx` | — | — | free |
-| `src/data/dreamlineData.ts` | — | — | free |
+| `src/data/dreamlineData.ts` | **session C** | 2026-10-06 | seat inventory helpers; `COACH_IMAGES`/`coachImageFor` deleted |
+| `src/lib/ticketStore.ts` | **session C** | 2026-10-06 | new file — localStorage ticket persistence |
+| `api/mpesa.js` | **session C** | 2026-10-06 | new file — Daraja STK push/query endpoint |
 | `src/hooks/useModalA11y.ts` | — | — | free |
 | `src/main.tsx` | — | — | free |
 | `index.html` | — | — | free |
 | `public/service-worker.js` | — | — | free |
-| `vercel.json` | — | — | free |
+| `vercel.json` | — | — | free — untouched (already excludes `api/`) |
 | `package.json` / lockfile | — | — | free — **do not prune deps without claiming** |
-| `BUILD_NOTES.md` | — | — | append-only, never rewrite others' entries |
+| `.env.example` | **session C** | 2026-10-06 | Daraja variables documented |
+| `README.md` | **session C** | 2026-10-06 | was released by session B in `ac9f9c3`; re-claimed to correct stale photo/M-PESA notes |
+| `docs/ARCHITECTURE.md` | **session C** | 2026-10-06 | known-gaps + booking-flow rewrite |
+| `docs/DEPLOYMENT.md` | **session C** | 2026-10-06 | env vars + post-deploy checklist |
+| `docs/PHOTO-LICENSING.md` | session B | 2026-10-04 22:40 | provenance findings — still open; session C appended resolution notes only |
+| `BUILD_NOTES.md` | — | — | append-only, never rewrite others' entries (file does not exist yet) |
 | `public/coaches/`, `public/*.png` | — | — | free |
-| `README.md` | — | — | released by session B in `ac9f9c3` |
-| `docs/PHOTO-LICENSING.md` | session B | 2026-10-04 22:40 | provenance findings — still open |
-| `src/data/dreamlineData.ts` | — | — | released by session B (unlicensed `coachImage` refs removed) |
-| `src/components/HeroSection.tsx` | — | — | released by session B (unlicensed hero slideshow removed) |
-| `public/coaches/` | — | — | released by session B — **directory now empty** |
 
 ## Live edits vs claims (collision warning)
 

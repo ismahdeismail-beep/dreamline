@@ -74,9 +74,33 @@ The repo is `ismahdeismail-beep/dreamline` (public).
 
 | Variable | Where | Status |
 |---|---|---|
-| `GEMINI_API_KEY` | `.env.local` (gitignored) | Placeholder — not read by any code yet |
+| `DARAJA_CONSUMER_KEY` | Vercel dashboard / `.env.local` | Required for M-PESA STK push |
+| `DARAJA_CONSUMER_SECRET` | Vercel dashboard / `.env.local` | Required for M-PESA STK push |
+| `DARAJA_SHORTCODE` | Vercel dashboard / `.env.local` | Required — paybill/till number |
+| `DARAJA_PASSKEY` | Vercel dashboard / `.env.local` | Required — STK passkey |
+| `DARAJA_CALLBACK_URL` | Vercel dashboard / `.env.local` | Required — public **https** URL Safaricom may notify |
+| `DARAJA_ENV` | Vercel dashboard / `.env.local` | Optional — `sandbox` (default) or `production` |
+| `GEMINI_API_KEY` | `.env.local` (gitignored) | Placeholder — not read by any code |
+| `APP_URL` | `.env.local` (gitignored) | Placeholder — not read by any code |
 
-`.env.local` is ignored via the `.env*` rule in `.gitignore`. For Vercel, add env vars in the project dashboard (Settings → Environment Variables) — nothing is required to run the current client.
+`.env.local` is ignored via the `.env*` rule in `.gitignore`. For Vercel, add env vars in
+the project dashboard (Settings → Environment Variables) — the client runs with **no**
+environment variables at all.
+
+### M-PESA (Daraja)
+
+All five `DARAJA_*` required values are read by `api/mpesa.js`, the repo's only
+server-side code. Vercel deploys it as a serverless function at `/api/mpesa`, which is
+why `vercel.json` excludes `api/` from the SPA rewrite.
+
+- **Without them** `GET /api/mpesa` answers `{ configured: false }`, the client leaves the
+  "Pay with M-PESA (STK) — coming soon" button disabled, and nothing else changes.
+- **With them** the button becomes "Pay KSh N with M-PESA", `MpesaModal` initiates a real
+  STK push and polls the endpoint until Safaricom reports success — only then is a ticket
+  issued.
+- **Local `npm run dev` / `npm run preview` have no server function**, so the probe 404s
+  once and M-PESA stays disabled locally. Test payments with `vercel dev` (or a preview
+  deployment) and sandbox credentials.
 
 ## PWA
 
@@ -92,7 +116,13 @@ The repo is `ismahdeismail-beep/dreamline` (public).
 2. `npm run build` → exit 0
 3. Push to `origin/main`
 4. `vercel deploy -y --no-wait` (or let Git integration handle it)
-5. Smoke-test: search a route → coach board filters to the matching corridor → select seat → "Continue on WhatsApp" opens `wa.me/254788256042` (local format `0788256042`)
+5. Smoke-test: search a route → coach board filters to the matching corridor → Select Seat
+   lands on `/book/:busId` → "Confirm on WhatsApp" opens `wa.me/254788256042`
+   (local format `0788256042`)
 6. Verify no horizontal overflow at 390 px and zero console errors
 7. Confirm the service worker registered and `/logo.png` resolves in the deployed build
-8. Verify `/book/sch-001` deep link renders the booking page (trip summary, form, inline + floating desk buttons)
+8. Verify `/book/sch-001` deep link renders the booking page (trip summary, form, inline +
+   floating desk buttons) and that the seat count matches the board
+9. M-PESA: `curl https://<deployment>/api/mpesa` → `{"configured":true,...}` once the
+   Daraja variables are set; run one sandbox STK push and confirm a ticket is issued only
+   after Safaricom reports success

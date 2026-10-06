@@ -1,12 +1,16 @@
 # Coach photo provenance — investigation findings
 
-Status: **investigation complete.** No images were changed, moved, or deleted.
+Status: **investigation complete; images withdrawn.** No image was changed, moved, or
+deleted during the investigation, and commit `2e9669f` later withheld all eight from the
+site — `public/coaches/` no longer exists and every `coachImage` field is unset. The
+findings below describe the state as it was on 2026-10-04 and still explain why the images
+must not come back without a recorded licence.
 Scope owner: `orch-main`. This file is additive documentation only.
 
 ## Summary
 
-All 8 coach photos are **wired and live on production**, but **none of them carries any
-usable licensing or attribution metadata**. They are byte-identical copies of files in
+All 8 coach photos **were** wired and live on production, but **none of them carries any
+usable licensing or attribution metadata**. They were byte-identical copies of files in
 the gitignored `unused-photos/` staging folder, so their origin is recoverable by
 inspection but not from the images themselves.
 
@@ -126,7 +130,19 @@ do not currently qualify for public use.
    find the source page and record author + licence. For the 4 generic `images (N).jpg`,
    the origin is unknown and they should be treated as unusable until sourced.
 2. **Do not redistribute** these as brand-owned fleet photography until confirmed.
-3. Once sources are known, add attribution to `docs/PHOTO-LICENSING.md` and correct the
-   stale README claim that `COACH_IMAGES` is intentionally empty.
-4. Consider deleting `COACH_IMAGES`/`coachImageFor` if the fallback stays unreachable, or
-   wire it properly as the single source of truth.
+3. ~~Once sources are known, add attribution to `docs/PHOTO-LICENSING.md` and correct the
+   stale README claim that `COACH_IMAGES` is intentionally empty.~~ — **done for the README
+   side:** the README and ARCHITECTURE now describe the real wiring (per-schedule
+   `coachImage`), note that `public/coaches/` is empty and the images are withheld, and
+   attribution is still owed here whenever a source is finally identified.
+4. ~~Consider deleting `COACH_IMAGES`/`coachImageFor` if the fallback stays unreachable, or
+   wire it properly as the single source of truth.~~ — **done:** `COACH_IMAGES` and
+   `coachImageFor()` were deleted; `BusSchedule.coachImage` is now the single source of
+   truth for coach photography, and `CoachPhoto`'s placeholder covers the empty case.
+
+## Status of the images themselves
+
+No image was added, restored, or re-enabled by the cleanup. The eight files are not in
+the repository (commit `2e9669f` withheld them and `public/coaches/` is gone), and
+nothing in `src/` references a `/coaches/` path. Re-introducing any of them requires a
+recorded source and licence in this file first.

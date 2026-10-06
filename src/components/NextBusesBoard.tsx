@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   BusSchedule,
-  coachImageFor,
+  availableSeatsFor,
   getTimeOfDayCategory,
   TimeOfDay,
 } from '../data/dreamlineData';
@@ -14,6 +14,8 @@ interface NextBusesBoardProps {
   onOpenWhatsAppHub: (msg?: string) => void;
   /** Active hero-search / quick-route selection, surfaced in the board header. */
   searchSummary?: { origin: string; destination: string } | null;
+  /** Seat codes held by tickets booked on this device, keyed by schedule id. */
+  extraBookedSeats?: Record<string, string[]>;
 }
 
 const TIME_BUCKETS: Array<'All' | TimeOfDay> = ['All', 'Morning', 'Afternoon', 'Night'];
@@ -23,6 +25,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
   onSelectBusToBook,
   onOpenWhatsAppHub,
   searchSummary = null,
+  extraBookedSeats = {},
 }) => {
   const [selectedCorridor, setSelectedCorridor] = useState<string>('All');
   const [timeBucket, setTimeBucket] = useState<'All' | TimeOfDay>('All');
@@ -201,7 +204,8 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
             className="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:thin]"
           >
           {filtered.map((bus) => {
-            const few = bus.availableSeats <= 6;
+            const seatsLeft = availableSeatsFor(bus, extraBookedSeats[bus.id]);
+            const few = seatsLeft <= 6;
             return (
               <div
                 key={bus.id}
@@ -209,7 +213,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
               >
                 <CoachPhoto
                   coachType={bus.coachType}
-                  src={bus.coachImage ?? coachImageFor(bus.coachType)}
+                  src={bus.coachImage}
                   alt={`${bus.coachName} — ${bus.coachType}`}
                   className="h-24 sm:h-28 w-full border-b border-slate-200"
                 />
@@ -244,7 +248,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
                   </div>
 
                   <p className={`mt-3 text-xs font-bold ${few ? 'text-[#e52421]' : 'text-emerald-600'}`}>
-                    {bus.availableSeats} of {bus.totalSeats} seats left
+                    {seatsLeft} of {bus.totalSeats} seats left
                   </p>
                 </div>
 

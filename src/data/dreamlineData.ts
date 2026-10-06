@@ -117,22 +117,15 @@ export const DISPLAY_WHATSAPP_NUMBER = '+254 788 256 042';
 export const TEL_LINK = `tel:+${DEFAULT_WHATSAPP_NUMBER}`;
 
 /**
- * Coach photography keyed by coach type.
+ * Coach photography.
  *
- * Set these to your own licensed product shots before going live. The photos
- * referenced here must be ones Dreamline has the right to publish — the three
- * Wikimedia Commons files considered during prototyping were rejected because
- * Wikimedia's robot policy forbids automated download of their media, and the
- * CC BY / CC BY-SA licences would additionally require visible attribution.
- *
- * Leaving an entry undefined renders a branded placeholder instead of a broken
- * image, so the UI is safe to deploy either way.
+ * Photos are attached per schedule through `BusSchedule.coachImage` — the only
+ * wiring path. It is currently unset for every schedule because the candidate
+ * images carry no verifiable licence (see docs/PHOTO-LICENSING.md); `CoachPhoto`
+ * renders a branded placeholder instead of a broken image, so the UI is safe to
+ * deploy either way. The type-level `COACH_IMAGES` fallback was deleted: every
+ * schedule supplies its own entry, so the map could never fire.
  */
-export const COACH_IMAGES: Partial<Record<BusSchedule['coachType'], string>> = {
-  // 'VIP 2x1 Recliner': '/coaches/vip-2x1-recliner.jpg',
-  // 'Executive Luxury 2x2': '/coaches/executive-2x2.jpg',
-  // 'First Class Sleeper': '/coaches/first-class-sleeper.jpg'
-};
 
 /** Short badge text shown on the placeholder when no photo is configured. */
 export const COACH_TYPE_BADGE: Record<BusSchedule['coachType'], string> = {
@@ -141,8 +134,103 @@ export const COACH_TYPE_BADGE: Record<BusSchedule['coachType'], string> = {
   'First Class Sleeper': 'Sleeper'
 };
 
-export function coachImageFor(coachType: BusSchedule['coachType']): string | undefined {
-  return COACH_IMAGES[coachType];
+/**
+ * Seat inventory.
+ *
+ * Each schedule declares how many seats are still sellable (`availableSeats`).
+ * *Which* seats they are is derived deterministically from the schedule id, so
+ * the seat map, the "seats left" counter and the booking form always agree
+ * without shipping a hand-maintained list of seat codes. Seats held by tickets
+ * created on this device are folded in through `extraBookedSeats`.
+ */
+const SEATS_ACROSS: Record<BusSchedule['coachType'], number> = {
+  'VIP 2x1 Recliner': 3,
+  'Executive Luxury 2x2': 4,
+  'First Class Sleeper': 3
+};
+
+export interface CoachSeatRow {
+  row: number;
+  /** Seats either side of the aisle, in seat order (e.g. left `1A`, right `1B`, `1C`). */
+  left: string[];
+  right: string[];
+}
+
+/** Builds the full seat grid for a departure, sized to its `totalSeats`. */
+export function seatRowsFor(bus: Pick<BusSchedule, 'coachType' | 'totalSeats'>): CoachSeatRow[] {
+  const across = SEATS_ACROSS[bus.coachType];
+  const letters = across === 4 ? ['A', 'B', 'C', 'D'] : ['A', 'B', 'C'];
+  const leftCount = across === 4 ? 2 : 1;
+  const rows: CoachSeatRow[] = [];
+  let placed = 0;
+
+  for (let row = 1; placed < bus.totalSeats; row++) {
+    const count = Math.min(across, bus.totalSeats - placed);
+    const codes = letters.slice(0, count).map((letter) => `${row}${letter}`);
+    const split = Math.min(leftCount, codes.length);
+    rows.push({ row, left: codes.slice(0, split), right: codes.slice(split) });
+    placed += count;
+  }
+
+  return rows;
+}
+
+/** Every seat code on the coach, in row order. */
+export function seatCodesFor(bus: Pick<BusSchedule, 'coachType' | 'totalSeats'>): string[] {
+  return seatRowsFor(bus).flatMap((row) => [...row.left, ...row.right]);
+}
+
+/** FNV-1a — stable across reloads so a seat never flips availability. */
+function hashSeed(text: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
+}
+
+/** mulberry32 — small deterministic PRNG; never use `Math.random` for inventory. */
+function nextRandom(state: { value: number }): number {
+  state.value = (state.value + 0x6d2b79f5) | 0;
+  let t = state.value;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+/** Seats already sold or held on this departure. */
+export function bookedSeatsFor(
+  bus: BusSchedule,
+  extraBookedSeats?: Iterable<string>
+): Set<string> {
+  const codes = seatCodesFor(bus);
+  const known = new Set(codes);
+  const sold = Math.max(0, Math.min(codes.length, bus.totalSeats - bus.availableSeats));
+  const state = { value: hashSeed(bus.id) };
+  const order = codes.map((_, index) => index);
+
+  // Partial Fisher-Yates: shuffle once, keep the first `sold` picks.
+  for (let i = 0; i < sold; i++) {
+    const j = i + Math.floor(nextRandom(state) * (order.length - i));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  const booked = new Set(order.slice(0, sold).map((index) => codes[index]));
+  if (extraBookedSeats) {
+    for (const seat of extraBookedSeats) {
+      if (known.has(seat)) booked.add(seat);
+    }
+  }
+  return booked;
+}
+
+/** Seats a passenger can still pick, clamped at zero for a full coach. */
+export function availableSeatsFor(
+  bus: BusSchedule,
+  extraBookedSeats?: Iterable<string>
+): number {
+  return Math.max(0, bus.totalSeats - bookedSeatsFor(bus, extraBookedSeats).size);
 }
 
 export const POPULAR_ROUTES: RouteDetail[] = [
@@ -520,7 +608,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     arrivalTime: '01:30 PM',
     pickupPoint: 'River Road Terminal (05:30 AM)',
     dropoffPoint: 'Mwembe Tayari Terminal',
-    seats: ['A2 (VIP Single)'],
+    seats: ['5A'],
     passengerName: 'Kennedy Mwangi',
     passengerPhone: DISPLAY_WHATSAPP_NUMBER,
     passengerEmail: 'kmwangi@example.com',
@@ -545,7 +633,7 @@ export const DEMO_TICKETS: BookingTicket[] = [
     arrivalTime: '02:15 PM',
     pickupPoint: 'River Road Terminal (07:30 AM)',
     dropoffPoint: 'Patel Flats Stage Kisumu',
-    seats: ['B1', 'B2'],
+    seats: ['3B', '3C'],
     passengerName: 'Amina Hassan',
     passengerPhone: DISPLAY_WHATSAPP_NUMBER,
     passengerEmail: 'amina.h@example.com',
