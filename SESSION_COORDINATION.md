@@ -82,12 +82,24 @@ Append one line per commit. Newest last.
   `col-span-2` was squeezing hero fields to ~107px on a 320px phone; Routes input
   16px on phones. Verified 19/19 desktop bookables land on the booking page and
   no box is under 140px at 320–1440px.
+- `21562a2` — session C — seat inventory derived from schedule data (seeded PRNG,
+  not the old hard-coded set); `SeatBookingModal` → `SeatMapModal` opened from
+  `/book/:busId` (the old modal was unreachable); localStorage ticket persistence;
+  real Daraja STK flow behind the new `api/mpesa.js`, disabled until `DARAJA_*` is
+  set; dead `COACH_IMAGES` fallback removed; ARCHITECTURE/README/DEPLOYMENT/
+  PHOTO-LICENSING corrected. E2E: seat pick → STK poll → persisted ticket → seat
+  still held after reload.
+- `21caacd` — session C — booking, M-PESA and Manage Ticket inputs raised to 16px
+  on phones per the agreement below.
 
 ## Current agreement
 
 - **Single contact:** `0788256042` / `+254 788 256 042` is the only phone number and
   the only contact channel. No other numbers, no email addresses.
 - **WhatsApp-first booking.** M-PESA STK stays disabled ("coming soon") until it is real.
+  *Satisfied as of `21562a2`: the STK flow is real and server-verified, and it keeps
+  itself disabled whenever the `DARAJA_*` credentials are absent — so WhatsApp remains
+  the default path.*
 - **No sign-in / auth** until the user asks for it. `My Ticket` is reference lookup.
 - **Every "Book"-style control must reach `/book/:busId`** — no exceptions, no falling
   back to the results list.
