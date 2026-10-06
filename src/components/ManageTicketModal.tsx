@@ -110,7 +110,7 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   placeholder={`e.g. DL-89204-KE or ${DISPLAY_WHATSAPP_NUMBER}`}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-base sm:text-xs font-mono font-bold text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                 />
               </div>
               <button

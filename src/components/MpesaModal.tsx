@@ -270,7 +270,7 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="0712 345 678"
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-[#008000] focus:ring-1 focus:ring-[#008000]"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-base sm:text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-[#008000] focus:ring-1 focus:ring-[#008000]"
                   />
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1">

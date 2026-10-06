@@ -208,7 +208,7 @@ export const BookingPage: React.FC<BookingPageProps> = ({
   };
 
   const field =
-    'w-full bg-white border border-slate-300 rounded-xl p-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15';
+    'w-full bg-white border border-slate-300 rounded-xl p-3 text-base sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#34398e] focus:ring-2 focus:ring-[#34398e]/15';
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#f7f6fc] via-white to-[#f7f6fc]">
