@@ -9,18 +9,21 @@ export const FleetAndSafety: React.FC<FleetAndSafetyProps> = ({ onOpenWhatsAppHu
   const coaches = [
     {
       img: '/amenities/vip.png',
+      photo: '/images/hero-1.jpg',
       name: 'Royal VIP 2x1',
       type: '37 seats · Nairobi ↔ Mombasa / Kisumu',
       features: ['Private single recliners', 'Wi-Fi + USB charging', 'Bottled water included'],
     },
     {
       img: '/amenities/seats.png',
+      photo: '/images/hero-3.jpg',
       name: 'Executive 2x2',
       type: '45 seats · Nakuru, Kisii, Busia',
       features: ['Ergonomic recline seats', 'Air conditioning', 'Large luggage hold'],
     },
     {
       img: '/amenities/power.png',
+      photo: '/images/hero-2.jpg',
       name: 'Night Sleeper',
       type: '33 berths · Overnight Mombasa',
       features: ['Flat-bed bunks + linens', 'Privacy curtains', 'Onboard security'],
@@ -38,18 +41,38 @@ export const FleetAndSafety: React.FC<FleetAndSafetyProps> = ({ onOpenWhatsAppHu
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {coaches.map((c) => (
-            <div key={c.name} className="bg-[#f9f8fc] border border-slate-200 rounded-2xl p-6 flex flex-col justify-between hover:border-[#34398e]/40 transition-colors">
+            <div key={c.name} className="bg-[#f9f8fc] border border-slate-200 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-[#34398e]/40 transition-colors">
               <div>
-                <img src={c.img} alt={c.name} className="w-14 h-14 object-contain" loading="lazy" />
-                <h3 className="text-lg font-black text-slate-900 mt-3">{c.name}</h3>
-                <p className="text-xs text-slate-500">{c.type}</p>
-                <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-200">
-                  {c.features.map((f) => (
-                    <div key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </div>
-                  ))}
+                {/* Photo band bleeds to the card edges; the official amenity icon
+                    rides on top of it so the card still reads at a glance. */}
+                <div className="relative h-36 bg-slate-200">
+                  <img
+                    src={c.photo}
+                    alt={`${c.name} coach`}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <span className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-slate-950/10 to-transparent" aria-hidden="true" />
+                  <img
+                    src={c.img}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    className="absolute left-4 bottom-3 w-11 h-11 object-contain drop-shadow-lg"
+                  />
+                </div>
+                <div className="p-6 pt-4">
+                  <h3 className="text-lg font-black text-slate-900">{c.name}</h3>
+                  <p className="text-xs text-slate-500">{c.type}</p>
+                  <div className="space-y-1.5 mt-3 pt-3 border-t border-slate-200">
+                    {c.features.map((f) => (
+                      <div key={f} className="flex items-start gap-2 text-xs text-slate-600">
+                        <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

@@ -3,7 +3,6 @@ import { useModalA11y } from '../hooks/useModalA11y';
 import { 
   X, 
   Search, 
-  Ticket as TicketIcon, 
   Calendar, 
   MapPin, 
   MessageSquare, 
@@ -75,9 +74,12 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
         {/* Header */}
         <div className="p-5 sm:px-6 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
-              <TicketIcon className="w-5 h-5 stroke-[2.2]" />
-            </div>
+            <img
+              src="/brand/ticket.webp"
+              alt=""
+              aria-hidden="true"
+              className="w-11 h-11 object-contain drop-shadow"
+            />
             <div>
               <h3 id="manage-ticket-title" className="font-bold text-base text-white font-['Lato']">
                 Manage & Retrieve Tickets

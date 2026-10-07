@@ -120,11 +120,11 @@ export const TEL_LINK = `tel:+${DEFAULT_WHATSAPP_NUMBER}`;
  * Coach photography.
  *
  * Photos are attached per schedule through `BusSchedule.coachImage` — the only
- * wiring path. It is currently unset for every schedule because the candidate
- * images carry no verifiable licence (see docs/PHOTO-LICENSING.md); `CoachPhoto`
- * renders a branded placeholder instead of a broken image, so the UI is safe to
- * deploy either way. The type-level `COACH_IMAGES` fallback was deleted: every
- * schedule supplies its own entry, so the map could never fire.
+ * wiring path. Each schedule points at one of the three Dreamline photos shipped
+ * in `public/images/` (matched to its coach type); `CoachPhoto` renders a branded
+ * placeholder if a path is ever missing or fails to load, so the UI is safe
+ * either way. The type-level `COACH_IMAGES` fallback was deleted: every schedule
+ * supplies its own entry, so the map could never fire.
  */
 
 /** Short badge text shown on the placeholder when no photo is configured. */
@@ -377,6 +377,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KDB 892M',
     coachName: 'Dreamline Royal Star VIP',
     coachType: 'VIP 2x1 Recliner',
+    coachImage: '/images/hero-1.jpg',
     origin: 'Nairobi',
     destination: 'Mombasa',
     departureTime: '06:00 AM',
@@ -398,6 +399,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KCR 419P',
     coachName: 'Dreamline Executive Cruiser',
     coachType: 'Executive Luxury 2x2',
+    coachImage: '/images/hero-3.jpg',
     origin: 'Nairobi',
     destination: 'Mombasa',
     departureTime: '10:30 AM',
@@ -419,6 +421,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KDD 104X',
     coachName: 'Dreamline Night Falcon Sleeper',
     coachType: 'First Class Sleeper',
+    coachImage: '/images/hero-2.jpg',
     origin: 'Nairobi',
     destination: 'Mombasa',
     departureTime: '10:00 PM',
@@ -440,6 +443,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KCS 612T',
     coachName: 'Dreamline Rift Express',
     coachType: 'Executive Luxury 2x2',
+    coachImage: '/images/hero-3.jpg',
     origin: 'Nairobi',
     destination: 'Nakuru',
     departureTime: '07:30 AM',
@@ -461,6 +465,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KDB 308J',
     coachName: 'Dreamline Western Monarch',
     coachType: 'VIP 2x1 Recliner',
+    coachImage: '/images/hero-1.jpg',
     origin: 'Nairobi',
     destination: 'Kisumu',
     departureTime: '08:00 AM',
@@ -482,6 +487,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KDA 771L',
     coachName: 'Dreamline Highlands VIP',
     coachType: 'VIP 2x1 Recliner',
+    coachImage: '/images/hero-1.jpg',
     origin: 'Nairobi',
     destination: 'Kisii',
     departureTime: '07:30 AM',
@@ -503,6 +509,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     busNumber: 'KDB 955R',
     coachName: 'Dreamline Border Eagle',
     coachType: 'Executive Luxury 2x2',
+    coachImage: '/images/hero-3.jpg',
     origin: 'Nairobi',
     destination: 'Busia',
     departureTime: '07:00 AM',
@@ -526,6 +533,7 @@ export const SAMPLE_SCHEDULES: BusSchedule[] = [
     origin: 'Mombasa',
     destination: 'Nairobi',
     coachType: 'VIP 2x1 Recliner',
+    coachImage: '/images/hero-1.jpg',
     departureTime: '08:30 AM',
     arrivalTime: '04:00 PM',
     duration: '7h 30m',

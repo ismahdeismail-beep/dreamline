@@ -1,10 +1,14 @@
 # Coach photo provenance — investigation findings
 
-Status: **investigation complete; images withdrawn.** No image was changed, moved, or
-deleted during the investigation, and commit `2e9669f` later withheld all eight from the
-site — `public/coaches/` no longer exists and every `coachImage` field is unset. The
-findings below describe the state as it was on 2026-10-04 and still explain why the images
-must not come back without a recorded licence.
+Status: **investigation complete; the eight candidates remain withdrawn.** Commit
+`2e9669f` withheld all eight from the site — `public/coaches/` no longer exists and is
+still prohibited pending a recorded licence. **Update 2026-10-07:** the operator
+instructed that the three Dreamline-livery photos that ship in `public/images/`
+(`hero-1.jpg`, `hero-2.jpg`, `hero-3.jpg`) be displayed; they are now wired per schedule
+via `coachImage` and used in the hero, fleet cards and booking header. They are
+operator-approved brand imagery, distinct from the eight withdrawn candidates below. The
+findings below describe the state as it was on 2026-10-04 and still explain why those
+eight must not come back without a recorded licence.
 Scope owner: `orch-main`. This file is additive documentation only.
 
 ## Summary

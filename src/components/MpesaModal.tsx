@@ -258,6 +258,12 @@ export const MpesaModal: React.FC<MpesaModalProps> = ({
           {/* STATES */}
           {status === 'idle' && (
             <div className="space-y-4">
+              <img
+                src="/brand/wallet.webp"
+                alt=""
+                aria-hidden="true"
+                className="w-14 h-14 mx-auto object-contain drop-shadow"
+              />
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5" htmlFor="mpesa-phone">
                   Confirm Safaricom Phone Number:

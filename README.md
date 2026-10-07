@@ -81,15 +81,18 @@ read that one function, so they can never disagree. Seat layout follows the coac
 
 Coach banner photos are attached per schedule via the `coachImage` field on each entry in
 `SAMPLE_SCHEDULES` (`src/data/dreamlineData.ts`). `CoachPhoto` degrades to a branded
-placeholder when no image is configured, so cards never render broken images. The field is
-currently **unset for every schedule** and `public/coaches/` is empty: the type-level
-`COACH_IMAGES` fallback was deleted because per-schedule wiring made it unreachable.
+placeholder when no image is configured, so cards never render broken images. Every
+schedule now points at one of the three Dreamline-livery photos that ship in
+`public/images/` (matched to its coach type); the same pool feeds the hero card, the fleet
+cards, and the booking header. The type-level `COACH_IMAGES` fallback was deleted because
+per-schedule wiring made it unreachable.
 
-> **Licensing status: unresolved.** The eight candidate images that used to ship in
-> `public/coaches/` carry no embedded source or licence metadata and are not hosted on the
-> official site, so they were withheld from the site. Treat them as unusable for public
-> marketing until provenance is confirmed — see
-> [docs/PHOTO-LICENSING.md](docs/PHOTO-LICENSING.md).
+> **Licensing status: operator-approved for the three shipped images.** The eight candidate
+> images that used to ship in `public/coaches/` carry no embedded source or licence
+> metadata and are not hosted on the official site — they remain withheld and are not in
+> the repository. The three images now in use (`public/images/hero-1..3.jpg`) show
+> Dreamline-livery coaches and were approved for display by the operator on 2026-10-07;
+> provenance notes live in [docs/PHOTO-LICENSING.md](docs/PHOTO-LICENSING.md).
 
 Candidate photos can be screened before being wired:
 

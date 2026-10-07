@@ -217,15 +217,18 @@ emitted from markup that no longer exists in `src/`, which cut the production CS
 ## PWA
 
 - `public/manifest.json` — app name, theme color `#34398e`, background `#f9f8fc`, and real 192/512 icons (`android-chrome-192x192.png`, `android-chrome-512x512.png`). The manifest previously pointed at hero JPGs, which produced poor install prompts; that is fixed.
-- `public/service-worker.js` — cache-first asset caching, cache name `dreamline-pwa-v3`, precaching `/logo.png`.
+- `public/service-worker.js` — network-first navigations, cache-first hashed assets, cache name `dreamline-pwa-v4`, precaching `/logo.png` and the hero images. `/api/*` responses are never cached, so a stale `{configured:false}` probe cannot keep M-PESA disabled after credentials land.
 - Registered in `src/main.tsx` on `window.load`, **production only** (`import.meta.env.PROD`) — a service worker in dev caches stale modules. Registration had been dropped entirely at one point, orphaning the manifest.
 
 ## Coach photography
 
 `BusSchedule.coachImage` (optional, per schedule) is the only wiring path; `CoachPhoto`
 renders an indigo branded placeholder when it is unset, so cards degrade cleanly instead
-of showing broken images. Every schedule currently leaves it unset and `public/coaches/`
-is empty — the candidate images have no verifiable licence (docs/PHOTO-LICENSING.md).
+of showing broken images. Every schedule sets it to one of the three Dreamline-livery
+photos in `public/images/` (matched to coach type), which feed the departure cards and the
+booking header; the hero card and fleet cards use the same pool directly. The eight
+`public/coaches/*` candidates stay withdrawn — no verifiable licence
+(docs/PHOTO-LICENSING.md).
 
 The type-level `COACH_IMAGES` map and `coachImageFor()` were deleted: each schedule
 supplies its own `coachImage`, so the fallback could never fire. New candidates must clear

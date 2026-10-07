@@ -46,12 +46,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [passengers, setPassengers] = useState(1);
   const travelDateOptions = buildDateOptions(new Date(`${today}T00:00:00`));
 
-  // Background decoration. The former coach-photo slideshow was removed: every
-  // candidate image had unresolvable provenance (no embedded licence, not hosted
-  // on the official site), so publishing them was a licensing risk. Brand-only
-  // decoration keeps the hero intact without shipping unlicensed photography.
-  // See docs/PHOTO-LICENSING.md. Restoring photos later means re-adding a source
-  // here and setting `coachImage` on each schedule in src/data/dreamlineData.ts.
+  // One static hero photo (the Dreamline VIP coach) sits beside the headline.
+  // It replaced the old crossfading coach slideshow: a single reliable image
+  // keeps the hero fast and avoids the licensing grey area that killed the
+  // rotating set. Per-coach photos live on each schedule (`coachImage`) and are
+  // rendered by CoachPhoto — see docs/PHOTO-LICENSING.md.
 
   const handleSwap = () => {
     setOrigin(destination);
@@ -84,14 +83,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       <div className="relative max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <p className="text-xs font-black tracking-widest uppercase text-[#34398e]">Kenya's luxury coach operator</p>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-            Book your bus in <span className="text-[#34398e]">minutes.</span>
-          </h1>
-          <p className="text-base text-slate-600">
-            VIP coaches across Kenya. Pay with M-Pesa, get help on WhatsApp.
-          </p>
+        {/* Headline + hero photo. The photo sits beside the copy on large
+            screens and stacks above the search card on phones, so the form's
+            field grid never gets squeezed. */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:col-span-6 text-center lg:text-left space-y-3">
+            <p className="text-xs font-black tracking-widest uppercase text-[#34398e]">Kenya's luxury coach operator</p>
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+              Book your bus in <span className="text-[#34398e]">minutes.</span>
+            </h1>
+            <p className="text-base text-slate-600">
+              VIP coaches across Kenya. Pay with M-Pesa, get help on WhatsApp.
+            </p>
+          </div>
+
+          <div className="lg:col-span-6 relative">
+            <div className="relative overflow-hidden rounded-3xl border border-white/70 shadow-xl shadow-[#34398e]/10 bg-white">
+              <img
+                src="/images/hero-1.jpg"
+                alt="A Dreamline VIP coach ready for departure"
+                width={716}
+                height={537}
+                className="w-full h-44 sm:h-56 lg:h-64 object-cover"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" aria-hidden="true" />
+              <span className="absolute left-4 bottom-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur text-[11px] font-black text-slate-900 shadow">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                8 daily departures · 2+1 VIP recliners
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Search card */}
