@@ -91,6 +91,12 @@ Append one line per commit. Newest last.
   still held after reload.
 - `21caacd` — session C — booking, M-PESA and Manage Ticket inputs raised to 16px
   on phones per the agreement below.
+- `8b0e8e6` — session C — bug sweep: strict `isTicket` validation (partial storage
+  entries crashed Manage Ticket search), `/book/:busId` resolved against the full
+  timetable (deep links after a filtered search rendered the dead-end page), stale
+  `2026-10-02` quick-route date, service worker no longer caches `/api/*` (a pinned
+  `{configured:false}` would have kept M-PESA off after credentials landed), and
+  M-PESA refused once a coach has 0 free seats. Headless E2E: 7/7 product checks.
 
 ## Current agreement
 
