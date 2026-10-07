@@ -125,9 +125,12 @@ export default function App() {
     return matchesOrigin && matchesDest;
   });
 
-  // Fallback if specific pair has no direct schedule in sample data
-  const fallbackSchedules = SAMPLE_SCHEDULES.slice(0, 4);
-  const schedulesToRender = displayedSchedules.length > 0 ? displayedSchedules : fallbackSchedules;
+  // Search results as-is. This used to fall back to the first 4 schedules when a
+  // corridor had no match, which rendered Mombasa buses under a
+  // "Nairobi → Narok, 4 departures matching your search" banner — and made the
+  // board's empty state unreachable. A missed search now shows the empty state,
+  // which offers the desk and a "show all departures" button.
+  const schedulesToRender = displayedSchedules;
 
   const handleOpenWhatsAppWithCustomMsg = (msg?: string) => {
     setWhatsAppInitialMsg(msg);
@@ -135,9 +138,11 @@ export default function App() {
   };
 
   // Any "Book" affordance that has no specific bus behind it lands on the soonest
-  // departure, so a tap always reaches the booking page.
+  // departure, so a tap always reaches the booking page. The full timetable is
+  // used, not the search results: after a fruitless search there is no result to
+  // pick from, and the agreement still requires Book → /book/:busId.
   const goToSoonestBooking = () => {
-    const soonest = schedulesToRender[0];
+    const soonest = SAMPLE_SCHEDULES[0];
     if (soonest) {
       goToBooking(soonest.id);
     }
@@ -154,10 +159,11 @@ export default function App() {
 
     // Tapping a route always reaches the booking page: prefer the soonest bus on
     // that corridor, then any departure to that destination, then any departure
-    // at all. Never dump the passenger back on the results list.
-    const match = schedulesToRender.find(
+    // at all. Never dump the passenger back on the results list — and search the
+    // full timetable, since the current search results may be empty by design.
+    const match = SAMPLE_SCHEDULES.find(
       (s) => s.origin === from && s.destination === to
-    ) ?? schedulesToRender.find((s) => s.destination === to);
+    ) ?? SAMPLE_SCHEDULES.find((s) => s.destination === to);
 
     if (match) {
       goToBooking(match.id);
@@ -295,6 +301,7 @@ export default function App() {
                 : null
             }
             extraBookedSeats={bookedSeatHolds}
+            onClearSearch={() => setSearchParams(null)}
             onSelectBusToBook={(bus) => goToBooking(bus.id)}
             onOpenWhatsAppHub={handleOpenWhatsAppWithCustomMsg}
           />

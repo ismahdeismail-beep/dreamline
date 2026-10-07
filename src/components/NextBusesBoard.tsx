@@ -16,6 +16,8 @@ interface NextBusesBoardProps {
   searchSummary?: { origin: string; destination: string } | null;
   /** Seat codes held by tickets booked on this device, keyed by schedule id. */
   extraBookedSeats?: Record<string, string[]>;
+  /** Clears the active hero search so a missed route can fall back to all departures. */
+  onClearSearch?: () => void;
 }
 
 const TIME_BUCKETS: Array<'All' | TimeOfDay> = ['All', 'Morning', 'Afternoon', 'Night'];
@@ -26,6 +28,7 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
   onOpenWhatsAppHub,
   searchSummary = null,
   extraBookedSeats = {},
+  onClearSearch,
 }) => {
   const [selectedCorridor, setSelectedCorridor] = useState<string>('All');
   const [timeBucket, setTimeBucket] = useState<'All' | TimeOfDay>('All');
@@ -180,17 +183,48 @@ export const NextBusesBoard: React.FC<NextBusesBoardProps> = ({
 
         {filtered.length === 0 ? (
           <div className="text-center py-12 px-6 bg-[#f9f8fc] border border-dashed border-slate-300 rounded-2xl">
-            <p className="font-black text-slate-900">No departures match those filters</p>
+            <img
+              src="/brand/travel.webp"
+              alt=""
+              aria-hidden="true"
+              className="w-20 h-20 mx-auto object-contain opacity-90"
+              loading="lazy"
+            />
+            <p className="font-black text-slate-900 mt-3">
+              {searchSummary ? 'No departures on this route' : 'No departures match those filters'}
+            </p>
             <p className="text-sm text-slate-500 mt-1">
-              Try another corridor or time of day — or ask us directly and we&apos;ll find you a seat.
+              {searchSummary ? (
+                <>
+                  No direct Dreamline departure for{' '}
+                  <span className="font-bold text-slate-700">
+                    {searchSummary.origin} → {searchSummary.destination}
+                  </span>{' '}
+                  right now — ask the desk and we&apos;ll route you, or browse every departure.
+                </>
+              ) : (
+                'Try another corridor or time of day — or ask us directly and we’ll find you a seat.'
+              )}
             </p>
             <div className="mt-4 flex items-center justify-center gap-3">
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold cursor-pointer hover:border-[#34398e]"
-              >
-                Clear filters
-              </button>
+              {searchSummary && onClearSearch ? (
+                <button
+                  onClick={() => {
+                    resetFilters();
+                    onClearSearch();
+                  }}
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold cursor-pointer hover:border-[#34398e]"
+                >
+                  Show all departures
+                </button>
+              ) : (
+                <button
+                  onClick={resetFilters}
+                  className="px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold cursor-pointer hover:border-[#34398e]"
+                >
+                  Clear filters
+                </button>
+              )}
               </div>
           </div>
         ) : (
