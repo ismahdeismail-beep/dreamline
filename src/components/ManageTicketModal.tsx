@@ -44,10 +44,11 @@ export const ManageTicketModal: React.FC<ManageTicketModalProps> = ({
     setSearched(true);
     // `allTickets` already carries the seeded demo bookings, so searching it
     // alone finds everything without duplicating every result.
+    const digits = q.replace(/[^0-9]/g, '');
     const match = allTickets.find(
-      t => t.bookingRef.toLowerCase() === q ||
-           t.passengerPhone.replace(/[^0-9]/g, '').includes(q.replace(/[^0-9]/g, '')) ||
-           t.idNumber.toLowerCase() === q
+      t => (t.bookingRef ?? '').toLowerCase() === q ||
+           (t.passengerPhone ?? '').replace(/[^0-9]/g, '').includes(digits) ||
+           (t.idNumber ?? '').toLowerCase() === q
     );
     setFoundTicket(match || null);
   };

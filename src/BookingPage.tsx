@@ -378,8 +378,20 @@ export const BookingPage: React.FC<BookingPageProps> = ({
             </button>
 
             {/* M-PESA STK stays disabled until the Daraja credentials are
-                configured server-side; probe state arrives as `mpesaEnabled`. */}
-            {mpesaEnabled ? (
+                configured server-side; probe state arrives as `mpesaEnabled`.
+                It is also refused once the coach has no free seats — a paid
+                booking for a seat that no longer exists is far worse than a
+                plain "coach full". The WhatsApp desk path stays open as the
+                standby/waitlist route. */}
+            {freeSeatCount === 0 ? (
+              <button
+                type="button"
+                disabled
+                className="w-full py-3 rounded-2xl bg-slate-100 text-slate-400 text-sm font-bold cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <CreditCard className="w-4 h-4" /> Coach is full — WhatsApp the desk
+              </button>
+            ) : mpesaEnabled ? (
               <button
                 type="button"
                 onClick={startMpesa}

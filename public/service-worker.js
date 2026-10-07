@@ -34,6 +34,12 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
 
+  // Server-function responses must never be cached: a pinned
+  // `{ configured: false }` would keep M-PESA switched off after the
+  // Daraja credentials are added, and stale probe/query results defeat
+  // the whole point of a live API.
+  if (new URL(request.url).pathname.startsWith('/api/')) return;
+
   // Navigations: network first so deploys show up, cached shell when offline.
   if (request.mode === 'navigate') {
     event.respondWith(

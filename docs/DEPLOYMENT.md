@@ -15,9 +15,9 @@ Build output:
 
 ```
 dist/
-├── index.html                      (~1.8 kB)
-├── assets/index-*.css              (~47 kB, ~8 kB gzip)
-├── assets/index-*.js               (~325 kB, ~91 kB gzip)
+├── index.html                      (~2.3 kB)
+├── assets/index-*.css              (~57 kB, ~9.7 kB gzip)
+├── assets/index-*.js               (~338 kB, ~97 kB gzip)
 ├── manifest.json                   (PWA manifest)
 ├── service-worker.js               (offline cache worker)
 ├── logo.png                        (brand logo, ~124 kB)

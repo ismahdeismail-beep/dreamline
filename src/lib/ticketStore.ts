@@ -9,16 +9,39 @@ import type { BookingTicket } from '../data/dreamlineData';
  */
 const STORAGE_KEY = 'dreamline.tickets.v1';
 
+const isString = (value: unknown): value is string => typeof value === 'string';
+const isFiniteNumber = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isFinite(value);
+
 function isTicket(value: unknown): value is BookingTicket {
   if (!value || typeof value !== 'object') return false;
-  const ticket = value as Partial<BookingTicket>;
+  const t = value as Partial<BookingTicket>;
   return (
-    typeof ticket.ticketId === 'string' &&
-    typeof ticket.bookingRef === 'string' &&
-    typeof ticket.busScheduleId === 'string' &&
-    typeof ticket.passengerName === 'string' &&
-    typeof ticket.passengerPhone === 'string' &&
-    Array.isArray(ticket.seats)
+    // Every field the ticket, manage-booking, and share views render — a
+    // partially-shaped entry used to pass the old check and then crash the
+    // search handler on `undefined.toLowerCase()`.
+    isString(t.ticketId) &&
+    isString(t.bookingRef) &&
+    isString(t.busScheduleId) &&
+    isString(t.coachName) &&
+    isString(t.busNumber) &&
+    isString(t.coachType) &&
+    isString(t.origin) &&
+    isString(t.destination) &&
+    isString(t.departureDate) &&
+    isString(t.departureTime) &&
+    isString(t.arrivalTime) &&
+    isString(t.pickupPoint) &&
+    isString(t.dropoffPoint) &&
+    Array.isArray(t.seats) &&
+    t.seats.every(isString) &&
+    isString(t.passengerName) &&
+    isString(t.passengerPhone) &&
+    isString(t.passengerEmail) &&
+    isString(t.idNumber) &&
+    isFiniteNumber(t.totalAmount) &&
+    isString(t.bookedAt) &&
+    isString(t.paymentStatus)
   );
 }
 

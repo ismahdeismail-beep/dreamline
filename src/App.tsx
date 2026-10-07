@@ -19,6 +19,12 @@ import {
 import { loadTickets, saveTickets } from './lib/ticketStore';
 import { BookingPage, type MpesaCheckout } from './BookingPage';
 
+/** Local calendar date as YYYY-MM-DD (same as HeroSection's picker). */
+const todayIso = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 export default function App() {
   // Dedicated booking page at /book/:busId. Kept as a tiny path check so the
   // app stays dependency-free while the URL stays shareable.
@@ -141,7 +147,7 @@ export default function App() {
     setSearchParams({
       origin: from,
       destination: to,
-      date: '2026-10-02',
+      date: todayIso(),
       passengers: 1
     });
     setSelectedRouteForWhatsApp({ from, to });
@@ -215,9 +221,12 @@ export default function App() {
   const bookMatch = path.match(/^\/book\/([^/]+)\/?$/);
   if (bookMatch) {
     const wantedId = decodeURIComponent(bookMatch[1]);
+    // The full timetable, not `schedulesToRender`: after a filtered search a
+    // deep link to a coach outside the results used to render the "no longer
+    // available" page for a perfectly valid departure.
     const bus =
-      schedulesToRender.find((s) => s.id === wantedId) ??
-      schedulesToRender.find((s) => s.busNumber === wantedId) ??
+      SAMPLE_SCHEDULES.find((s) => s.id === wantedId) ??
+      SAMPLE_SCHEDULES.find((s) => s.busNumber === wantedId) ??
       null;
     return (
       <>
